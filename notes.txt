@@ -1,0 +1,50 @@
+https://github.com/statsbomb/open-data/tree/master
+
+    # seleting the UCL 2018/2019 season - competition_id 16, season_id 4
+
+    "competition_id" : 16,
+    "season_id" : 4,
+    "country_name" : "Europe",
+    "competition_name" : "Champions League",
+    "competition_gender" : "male",
+    "competition_youth" : false,
+    "competition_international" : false,
+    "season_name" : "2018/2019",
+    "match_updated" : "2024-06-12T07:44:38.559714",
+    "match_updated_360" : "2021-06-13T16:17:31.694",
+    "match_available_360" : null,
+    "match_available" : "2024-06-12T07:44:38.559714"
+    },
+
+
+Install requirements:
+
+    pip install requests
+
+Download the data locally:
+
+    python download_statsbomb_data.py
+
+Install Google Cloud SDK:
+
+    https://cloud.google.com/sdk/docs/install
+
+Make sure you are rightly authenticated to Google Cloud:
+
+    gcloud auth login
+
+Gcloud command to set the project:
+
+    gcloud config set project <your_project_id>
+
+    -- gcloud config set project awesome-advice-420021
+
+Create a new BigQuery dataset:
+
+    bq mk --dataset --description "StatsBomb data" statsbomb
+
+Load the data into BigQuery:
+
+    python load_to_bigquery.py your-project-id statsbomb
+
+    -- python load_to_bigquery.py awesome-advice-420021 statsbomb
