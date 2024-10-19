@@ -319,7 +319,7 @@ WHERE
 -- Model to predict if a shot is a goal or not
 CREATE OR REPLACE MODEL `awesome-advice-420021.statsbomb.goal_prediction_model`
 OPTIONS(
-  model_type='LOGISTIC_REG',
+  model_type='AUTOML_CLASSIFIER',
   input_label_cols=['is_goal']
 ) AS
 SELECT
