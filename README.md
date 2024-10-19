@@ -1,5 +1,7 @@
 # StatsBomb Data Analysis Hackathon
 
+![Football Hackathon Logo](logo.jpeg)
+
 This repository contains the necessary code and instructions to run a data analysis hackathon using StatsBomb open data and Google Cloud Platform (GCP) services.
 
 ## Prerequisites
