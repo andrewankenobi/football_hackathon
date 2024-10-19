@@ -3,12 +3,19 @@ import json
 from google.cloud import bigquery
 import argparse
 
-def convert_to_newline_delimited_json(input_file, output_file):
+def convert_to_newline_delimited_json(input_file, output_file, table_id):
     with open(input_file, 'r') as infile, open(output_file, 'a') as outfile:
         data = json.load(infile)
-        for item in data:
-            json.dump(item, outfile)
-            outfile.write('\n')
+        if table_id == "events":
+            match_id = int(os.path.splitext(os.path.basename(input_file))[0])
+            for item in data:
+                item['match_id'] = match_id
+                json.dump(item, outfile)
+                outfile.write('\n')
+        else:
+            for item in data:
+                json.dump(item, outfile)
+                outfile.write('\n')
 
 def drop_all_tables(project_id, dataset_id):
     client = bigquery.Client(project=project_id)
@@ -105,6 +112,7 @@ def get_schema(table_id):
         ]
     elif table_id == "events":
         return [
+            bigquery.SchemaField("match_id", "INTEGER"),
             bigquery.SchemaField("id", "STRING"),
             bigquery.SchemaField("index", "INTEGER"),
             bigquery.SchemaField("period", "INTEGER"),
@@ -179,7 +187,7 @@ def load_json_to_bigquery(project_id, dataset_id, table_id, file_paths):
 
     temp_file = f"{table_id}.ndjson"
     for file_path in file_paths:
-        convert_to_newline_delimited_json(file_path, temp_file)
+        convert_to_newline_delimited_json(file_path, temp_file, table_id)
 
     with open(temp_file, "rb") as source_file:
         job = client.load_table_from_file(source_file, table_ref, job_config=job_config)
@@ -210,3 +218,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args.project_id, args.dataset_id)
+    
