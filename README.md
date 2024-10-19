@@ -79,23 +79,49 @@ This repository contains the necessary code and instructions to run a data analy
 
    Replace `<service-account-email>` with the email of the service account created for the connection.
 
-## Running Queries
+## Running Queries and Experiments
+
+The `sql_queries.sql` file contains a comprehensive set of SQL queries, views, and machine learning models that you can use to analyze the StatsBomb data. Here are some of the key use cases and experiments you can run:
+
+1. **Data Exploration**:
+   - Examine the schema of the StatsBomb data
+   - Analyze goals by body part for each player and team
+   - Identify top scorers in the dataset
+   - Calculate team possession percentages
+
+2. **Player Analysis**:
+   - Create a detailed view of player statistics
+   - Analyze player shots and their characteristics
+   - Cluster players based on their performance metrics
+   - Predict player performance scores
+
+3. **Match Analysis**:
+   - Generate comprehensive match statistics
+   - Predict match outcomes based on in-game events
+
+4. **Expected Goals (xG) Analysis**:
+   - Build and test an xG prediction model
+   - Analyze the factors that contribute most to xG
+
+5. **Goal Prediction**:
+   - Create a model to predict whether a shot will result in a goal
+   - Analyze the most important features for goal prediction
+
+6. **Team Performance**:
+   - Predict team performance scores
+   - Analyze factors contributing to team success
+
+7. **Advanced Analytics**:
+   - Use the Vertex AI connection to leverage Gemini Pro for natural language processing tasks, such as generating stadium locations
+
+To run these experiments:
 
 1. Open the BigQuery console in your GCP project.
-
 2. Copy and paste queries from the `sql_queries.sql` file into the BigQuery query editor.
+3. Run the queries to create views, train models, and analyze the data.
+4. Experiment with different parameters, features, or model types to improve predictions.
 
-3. Run the queries to create views, models, and analyze the data.
-
-## Hackathon Challenges
-
-Here are some suggested challenges for the hackathon:
-
-1. Analyze player performance metrics and create player rankings.
-2. Develop a model to predict match outcomes based on in-game statistics.
-3. Visualize team tactics and player movements using the event data.
-4. Create a dashboard to compare team performances across different seasons.
-5. Develop an xG (expected goals) model using the shot data.
+Feel free to modify the queries or create new ones to explore additional aspects of the data that interest you.
 
 ## Project Structure
 
