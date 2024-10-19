@@ -211,9 +211,9 @@ GROUP BY player_name
 ORDER BY appearances DESC
 
 
--- player clusters
-CREATE OR REPLACE MODEL `awesome-advice-420021.statsbomb.player_clusters`
-OPTIONS(model_type='kmeans', num_clusters=5) AS
+-- player stats view
+CREATE OR REPLACE VIEW `awesome-advice-420021.statsbomb.player_stats` AS
+
 SELECT
   player.name,
   COUNT(CASE WHEN type.name = 'Ball Recovery' THEN 1 END) AS Ball_Recovery_count,
@@ -255,6 +255,12 @@ FROM
 GROUP BY
   player.name
 
+-- player clusters
+CREATE OR REPLACE MODEL `awesome-advice-420021.statsbomb.player_clusters`
+OPTIONS(model_type='kmeans', num_clusters=5) AS
+SELECT
+  * from `awesome-advice-420021.statsbomb.player_stats`
+
 
 -- Model to predict xg from shot type, body part, technique, under pressure, play pattern, location
 
@@ -276,12 +282,9 @@ WHERE
 
 
 
--- Model to predict if a shot is a goal or not
-CREATE OR REPLACE MODEL `awesome-advice-420021.statsbomb.goal_prediction_model`
-OPTIONS(
-  model_type='LOGISTIC_REG',
-  input_label_cols=['is_goal']
-) AS
+-- player shots
+CREATE OR REPLACE VIEW `awesome-advice-420021.statsbomb.player_shots` AS 
+
 SELECT
   CASE WHEN shot.outcome.name = 'Goal' THEN 1 ELSE 0 END as is_goal,
   shot.body_part.name AS body_part,
@@ -313,6 +316,16 @@ WHERE
   AND player.name IS NOT NULL
 
 
+-- Model to predict if a shot is a goal or not
+CREATE OR REPLACE MODEL `awesome-advice-420021.statsbomb.goal_prediction_model`
+OPTIONS(
+  model_type='LOGISTIC_REG',
+  input_label_cols=['is_goal']
+) AS
+SELECT
+  * from `awesome-advice-420021.statsbomb.player_shots`
+
+
 -- Testing the model with explanation
 
 SELECT
@@ -321,34 +334,7 @@ FROM
   ML.EXPLAIN_PREDICT(MODEL `awesome-advice-420021.statsbomb.goal_prediction_model`,
     (
         SELECT
-   CASE WHEN shot.outcome.name = 'Goal' THEN 1 ELSE 0 END as is_goal_real,
-  shot.body_part.name AS body_part,
-  shot.technique.name AS technique,
-  shot.type.name AS shot_type,
-  under_pressure,
-  play_pattern.name AS play_pattern,
-  player.name,
-  period,
-  SQRT(POW(120 - location[OFFSET(0)], 2) + POW(40 - location[OFFSET(1)], 2)) AS distance_to_goal,
-  ABS(ATAN2(40 - location[OFFSET(1)], 120 - location[OFFSET(0)])) AS angle_to_goal,
-  CASE 
-    WHEN location[OFFSET(0)] >= 102 AND location[OFFSET(1)] BETWEEN 18 AND 62 THEN 1 
-    ELSE 0 
-  END AS is_in_box,
-  CASE 
-    WHEN ABS(location[OFFSET(1)] - 40) < 20 THEN 1 
-    ELSE 0 
-  END AS is_central,
-  CASE 
-    WHEN minute >= 75 THEN 1 
-    ELSE 0 
-  END AS is_late_game
-FROM
-  `awesome-advice-420021.statsbomb.events`
-WHERE
-  type.name = 'Shot'
-  AND shot.type.name != 'Penalty'
-  AND player.name IS NOT NULL
+  * from `awesome-advice-420021.statsbomb.player_shots`
 
     )
   )
@@ -427,12 +413,12 @@ WHERE
 
   )
 
---  Model to predict match outcome
-CREATE OR REPLACE MODEL `awesome-advice-420021.statsbomb.match_outcome_prediction`
-OPTIONS(
-  model_type='RANDOM_FOREST_CLASSIFIER',
-  num_trials=20,
-  input_label_cols=['match_outcome']
-) AS
-
-select * from `awesome-advice-420021.statsbomb.match_stats`
+  --  Model to predict match outcome
+CREATE OR REPLACE MODEL
+  `awesome-advice-420021.statsbomb.match_outcome_prediction` OPTIONS( model_type='RANDOM_FOREST_CLASSIFIER',
+    num_trials=20,
+    input_label_cols=['match_outcome'] ) AS
+SELECT
+  *
+FROM
+  `awesome-advice-420021.statsbomb.match_stats`
