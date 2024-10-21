@@ -69,7 +69,7 @@ max_perplexity_teams = min(30, n_teams - 1)
 
 # Initialize the Dash app
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, title="Team and Player TSNE", external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, title="Football t-SNE", external_stylesheets=external_stylesheets)
 
 current_year = datetime.datetime.now().year
 
@@ -77,19 +77,28 @@ current_year = datetime.datetime.now().year
 app.layout = html.Div([
     html.Link(
         rel='stylesheet',
-        href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Bungee&display=swap'
+        href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700&display=swap'
     ),
     html.Div([
-        html.H1("Team and Player Embeddings t-SNE Visualization", style={
-            'font-family': 'Bungee', 
-            'color': '#4285F4', 
-            'text-align': 'center'
+        html.Div([
+            html.H1("Embeddings t-SNE Visualization", style={
+                'font-family': 'Montserrat', 
+                'color': 'white',
+                'text-align': 'center',
+                'font-weight': '700',
+                'margin': '0',
+                'padding': '20px',
+            })
+        ], style={
+            'background-color': '#4285F4',
+            'border-radius': '20px',
+            'margin-bottom': '20px',
         }),
         
         html.Div([
             # Team View
             html.Div([
-                html.H2("Team View", style={'font-family': 'Bungee', 'color': '#4285F4'}),
+                html.H2("Team View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
                 html.Div([
                     html.Div([
                         html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
@@ -120,7 +129,7 @@ app.layout = html.Div([
                 ], style={
                     'backgroundColor': '#f1f3f4',
                     'padding': '10px',
-                    'borderRadius': '8px',
+                    'borderRadius': '20px',
                     'marginBottom': '10px'
                 }),
                 html.Div([
@@ -144,7 +153,7 @@ app.layout = html.Div([
 
             # Player View
             html.Div([
-                html.H2("Player View", style={'font-family': 'Bungee', 'color': '#4285F4'}),
+                html.H2("Player View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
                 html.Div([
                     html.Div([
                         html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
@@ -175,7 +184,7 @@ app.layout = html.Div([
                 ], style={
                     'backgroundColor': '#f1f3f4',
                     'padding': '10px',
-                    'borderRadius': '8px',
+                    'borderRadius': '20px',
                     'marginBottom': '10px'
                 }),
                 html.Div([
@@ -204,7 +213,6 @@ app.layout = html.Div([
                 ),
             ], style={'width': '48%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '4%'}),
         ], style={'display': 'flex', 'alignItems': 'flex-start'}),  # Add this style to align the two views
-        
         html.Div([
             html.P(f"© {current_year} Made by andrewankenobi@google.com", style={
                 'font-family': 'Inter',
@@ -221,7 +229,7 @@ app.layout = html.Div([
         'font-family': 'Inter, sans-serif',
         'background-color': '#ffffff',
         'box-shadow': '0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15)',
-        'border-radius': '8px'
+        'border-radius': '20px'
     })
 ], style={
     'background-color': '#CEDAEC',
@@ -262,7 +270,7 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
     fig.update_layout(
         height=750,
         font_family='Inter',
-        title_font_family='Bungee',
+        title_font_family='Montserrat',
         paper_bgcolor='#ffffff',
         plot_bgcolor='#CEDAEC',
         scene=dict(
@@ -335,7 +343,7 @@ def update_player_plot(perplexity, n_iter, n_clicks, positions, click_data, show
     fig.update_layout(
         height=750,
         font_family='Inter',
-        title_font_family='Bungee',
+        title_font_family='Montserrat',
         paper_bgcolor='#ffffff',
         plot_bgcolor='#CEDAEC',
         scene=dict(
