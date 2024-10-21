@@ -228,6 +228,18 @@ CREATE OR REPLACE MODEL `statsbomb.player_clusters`
 OPTIONS(model_type='kmeans', num_clusters=5) AS
 SELECT * FROM `statsbomb.vw_player_stats`;
 
+
+-- Refined model with hyperparameter tuning
+CREATE OR REPLACE MODEL `statsbomb.player_clusters`
+OPTIONS(
+  model_type = 'kmeans',
+  num_clusters = HPARAM_RANGE(3, 6), -- This defines the range of clusters to try
+  num_trials = 10,  -- This defines how many different models to try with different hyperparameters
+  hparam_tuning_objectives = ['DAVIES_BOULDIN_INDEX'], -- This defines the objective function to optimize
+  hparam_tuning_algorithm = 'VIZIER_DEFAULT' -- This defines the algorithm to use for hyperparameter tuning
+) AS
+SELECT * FROM `statsbomb.vw_player_stats`;
+
 -- Test the Player Clustering Model
 SELECT
   *
@@ -257,7 +269,7 @@ WHERE
 SELECT
   *
 FROM
-  ML.PREDICT(MODEL `statsbomb.xg_prediction`,
+  ML.EXPLAIN_PREDICT(MODEL `statsbomb.xg_prediction`,
     (SELECT
       shot.type.name AS shot_type,
       shot.body_part.name AS body_part,
@@ -268,13 +280,12 @@ FROM
     FROM
       `statsbomb.events`
     WHERE
-      type.name = 'Shot'
-    LIMIT 10))
+      type.name = 'Shot'))
 
 -- 7.3: Goal Prediction Model
 CREATE OR REPLACE MODEL `statsbomb.goal_prediction_model`
 OPTIONS(
-  model_type='AUTOML_CLASSIFIER',
+  model_type='LOGISTIC_REG',
   input_label_cols=['is_goal']
 ) AS
 SELECT * FROM `statsbomb.vw_player_shots`;
@@ -284,14 +295,13 @@ SELECT
   *
 FROM
   ML.PREDICT(MODEL `statsbomb.goal_prediction_model`,
-    (SELECT * FROM `statsbomb.vw_player_shots` LIMIT 10))
+    (SELECT * FROM `statsbomb.vw_player_shots`))
 
 -- 7.4: Match Outcome Prediction Model
 CREATE OR REPLACE MODEL
   `statsbomb.match_outcome_prediction` 
 OPTIONS( 
-  model_type='RANDOM_FOREST_CLASSIFIER',
-  num_trials=20,
+  model_type='LOGISTIC_REG',
   input_label_cols=['match_outcome'] 
 ) AS
 SELECT
@@ -299,87 +309,91 @@ SELECT
 FROM
   `statsbomb.vw_match_stats`;
 
+
 -- Test the Match Outcome Prediction Model
 SELECT
   *
 FROM
   ML.PREDICT(MODEL `statsbomb.match_outcome_prediction`,
-    (SELECT * FROM `statsbomb.vw_match_stats` LIMIT 10))
+    (SELECT * FROM `statsbomb.vw_match_stats`))
 
--- 7.5: New Model: Player Performance Prediction
-CREATE OR REPLACE MODEL `statsbomb.player_performance_prediction`
-OPTIONS(
-  model_type='AUTOML_REGRESSOR',
-  input_label_cols=['performance_score']
-) AS
+-- Section 8: Player Embeddings and Similarity Search
+
+-- 8.1: Create Player Statistics View
+CREATE OR REPLACE VIEW `statsbomb.vw_player_stats` AS
 SELECT
-  player.name,
+  player.name AS player_name,
   COUNT(*) AS total_events,
-  AVG(CASE WHEN type.name = 'Pass' THEN pass.length ELSE NULL END) AS avg_pass_length,
-  SUM(CASE WHEN type.name = 'Shot' AND shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) AS goals,
-  SUM(CASE WHEN type.name = 'Pass' AND pass.outcome.name = 'Complete' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Pass' THEN 1 END), 0) AS pass_completion_rate,
-  SUM(CASE WHEN type.name = 'Duel' AND duel.outcome.name = 'Won' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Duel' THEN 1 END), 0) AS duel_win_rate,
-  (SUM(CASE WHEN type.name = 'Shot' AND shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) * 3 +
-   SUM(CASE WHEN type.name = 'Pass' AND pass.outcome.name = 'Complete' THEN 1 ELSE 0 END) * 0.1 +
-   SUM(CASE WHEN type.name = 'Duel' AND duel.outcome.name = 'Won' THEN 1 ELSE 0 END) * 0.5) / NULLIF(COUNT(*), 0) AS performance_score
+  AVG(CASE WHEN type.name = 'Pass' THEN 1 ELSE 0 END) AS pass_ratio,
+  AVG(CASE WHEN type.name = 'Shot' THEN 1 ELSE 0 END) AS shot_ratio,
+  AVG(CASE WHEN type.name = 'Ball Recovery' THEN 1 ELSE 0 END) AS ball_recovery_ratio,
+  AVG(CASE WHEN type.name = 'Duel' THEN 1 ELSE 0 END) AS duel_ratio,
+  AVG(CASE WHEN type.name = 'Interception' THEN 1 ELSE 0 END) AS interception_ratio,
+  AVG(CASE WHEN shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) AS goal_ratio,
+  AVG(CASE WHEN type.name = 'Pressure' THEN 1 ELSE 0 END) AS pressure_ratio,
+  AVG(CASE WHEN type.name = 'Dribble' THEN 1 ELSE 0 END) AS dribble_ratio,
+  AVG(CASE WHEN type.name = 'Foul Committed' THEN 1 ELSE 0 END) AS foul_committed_ratio,
+  AVG(CASE WHEN type.name = 'Foul Won' THEN 1 ELSE 0 END) AS foul_won_ratio,
+  AVG(CASE WHEN type.name = 'Carry' THEN 1 ELSE 0 END) AS carry_ratio,
+  AVG(CASE WHEN type.name = 'Dispossessed' THEN 1 ELSE 0 END) AS dispossessed_ratio,
+  AVG(CASE WHEN type.name = 'Clearance' THEN 1 ELSE 0 END) AS clearance_ratio,
+  AVG(CASE WHEN type.name = 'Block' THEN 1 ELSE 0 END) AS block_ratio
 FROM
   `statsbomb.events`
+WHERE
+  player.name IS NOT NULL
 GROUP BY
-  player.name;
+  player.name
+HAVING
+  COUNT(*) > 100;  -- Filter out players with too few events
 
--- Test the Player Performance Prediction Model
+
+-- 8.3: Create Player Embedding Model 
+CREATE OR REPLACE MODEL `statsbomb.player_embedding_model`
+OPTIONS(
+  MODEL_TYPE='PCA', 
+  pca_explained_variance_ratio= 0.9
+) AS
 SELECT
   *
 FROM
-  ML.PREDICT(MODEL `statsbomb.player_performance_prediction`,
-    (SELECT
-      player.name,
-      COUNT(*) AS total_events,
-      AVG(CASE WHEN type.name = 'Pass' THEN pass.length ELSE NULL END) AS avg_pass_length,
-      SUM(CASE WHEN type.name = 'Shot' AND shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) AS goals,
-      SUM(CASE WHEN type.name = 'Pass' AND pass.outcome.name = 'Complete' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Pass' THEN 1 END), 0) AS pass_completion_rate,
-      SUM(CASE WHEN type.name = 'Duel' AND duel.outcome.name = 'Won' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Duel' THEN 1 END), 0) AS duel_win_rate
-    FROM
-      `statsbomb.events`
-    GROUP BY
-      player.name
-    LIMIT 10))
+  `statsbomb.vw_player_stats`;
 
--- 7.6: New Model: Team Performance Prediction
-CREATE OR REPLACE MODEL `statsbomb.team_performance_prediction`
-OPTIONS(
-  model_type='AUTOML_REGRESSOR',
-  input_label_cols=['team_performance_score']
-) AS
-SELECT
-  team.name AS team_name,
-  COUNT(*) AS total_events,
-  AVG(CASE WHEN type.name = 'Pass' THEN pass.length ELSE NULL END) AS avg_pass_length,
-  SUM(CASE WHEN type.name = 'Shot' AND shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) AS goals,
-  SUM(CASE WHEN type.name = 'Pass' AND pass.outcome.name = 'Complete' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Pass' THEN 1 END), 0) AS pass_completion_rate,
-  SUM(CASE WHEN type.name = 'Duel' AND duel.outcome.name = 'Won' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Duel' THEN 1 END), 0) AS duel_win_rate,
-  (SUM(CASE WHEN type.name = 'Shot' AND shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) * 3 +
-   SUM(CASE WHEN type.name = 'Pass' AND pass.outcome.name = 'Complete' THEN 1 ELSE 0 END) * 0.1 +
-   SUM(CASE WHEN type.name = 'Duel' AND duel.outcome.name = 'Won' THEN 1 ELSE 0 END) * 0.5) / NULLIF(COUNT(*), 0) AS team_performance_score
-FROM
-  `statsbomb.events`
-GROUP BY
-  team.name;
-
--- Test the Team Performance Prediction Model
+-- 8.4: Generate Player Embeddings
+CREATE OR REPLACE TABLE `statsbomb.player_embeddings` AS
 SELECT
   *
 FROM
-  ML.PREDICT(MODEL `statsbomb.team_performance_prediction`,
-    (SELECT
-      team.name AS team_name,
-      COUNT(*) AS total_events,
-      AVG(CASE WHEN type.name = 'Pass' THEN pass.length ELSE NULL END) AS avg_pass_length,
-      SUM(CASE WHEN type.name = 'Shot' AND shot.outcome.name = 'Goal' THEN 1 ELSE 0 END) AS goals,
-      SUM(CASE WHEN type.name = 'Pass' AND pass.outcome.name = 'Complete' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Pass' THEN 1 END), 0) AS pass_completion_rate,
-      SUM(CASE WHEN type.name = 'Duel' AND duel.outcome.name = 'Won' THEN 1 ELSE 0 END) / NULLIF(COUNT(CASE WHEN type.name = 'Duel' THEN 1 END), 0) AS duel_win_rate
-    FROM
-      `statsbomb.events`
-    GROUP BY
-      team.name
-    LIMIT 10))
+  ML.GENERATE_EMBEDDING(
+    MODEL `statsbomb.player_embedding_model`,
+    TABLE `statsbomb.vw_player_stats`);
+
+
+-- 8.5: Vector Search Query in BigQuery
+
+-- Goalkeeper
+SELECT
+base.* 
+FROM
+  VECTOR_SEARCH(
+    TABLE `statsbomb.player_embeddings`,
+    'ml_generate_embedding_result',
+    (SELECT ml_generate_embedding_result FROM `statsbomb.player_embeddings` WHERE player_name = 'Petr Čech'),
+    top_k => 10,
+    distance_type => 'COSINE'
+  ) 
+where base.player_name!='Petr Čech' 
+
+
+-- Defender
+SELECT
+base.* 
+FROM
+  VECTOR_SEARCH(
+    TABLE `statsbomb.player_embeddings`,
+    'ml_generate_embedding_result',
+    (SELECT ml_generate_embedding_result FROM `statsbomb.player_embeddings` WHERE player_name = 'Angelo Obinze Ogbonna'),
+    top_k => 10,
+    distance_type => 'COSINE'
+  ) 
+where base.player_name!='Angelo Obinze Ogbonna' 
