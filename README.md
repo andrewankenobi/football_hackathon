@@ -23,6 +23,16 @@ This repository contains the necessary code and instructions to run a data analy
    pip install -r requirements.txt
    ```
 
+   Make sure the following packages are included in your requirements.txt file:
+   ```
+   pandas
+   numpy
+   scikit-learn
+   plotly
+   dash
+   google-cloud-bigquery
+   ```
+
 3. Install the Google Cloud SDK by following the instructions [here](https://cloud.google.com/sdk/docs/install).
 
 4. Authenticate with your Google Cloud account:
@@ -145,28 +155,6 @@ Several views are created to facilitate data exploration and analysis:
 
 These views can be used as a starting point for further analysis or as input for machine learning models.
 
-## Project Structure
-
-- `data/`: Contains pre-downloaded Premier League data
-- `doc/`: Documentation files, including StatsBomb event specifications
-- `sql_queries.sql`: Sample SQL queries for data analysis
-- `load_to_bigquery.py`: Script to load data into BigQuery
-- `requirements.txt`: List of Python dependencies
-- `statsbomb_schema.json`: JSON schema for StatsBomb data
-
-## Resources
-
-- [StatsBomb Open Data](https://github.com/statsbomb/open-data)
-- [Google Cloud Documentation](https://cloud.google.com/docs)
-- [BigQuery ML Documentation](https://cloud.google.com/bigquery-ml/docs)
-- [Vertex AI Documentation](https://cloud.google.com/vertex-ai/docs)
-
-## Support
-
-If you encounter any issues or have questions, please open an issue in this repository.
-
-Happy hacking!
-
 ## Player Similarity Analysis
 
 The project includes advanced player similarity analysis using embeddings:
@@ -182,7 +170,44 @@ This feature can be used for player scouting, tactical analysis, or understandin
 
 Example usage:
 
-```
+```sql
 SELECT * FROM `statsbomb.find_similar_players`('Lionel Andrés Messi Cuccittini');
-
 ```
+
+## Running t-SNE Visualization Locally
+
+After completing the setup and data loading steps, you can run the t-SNE visualization locally:
+
+1. Ensure you have all the required dependencies installed (step 2 in the Setup section).
+
+2. Run the t-SNE visualization script:
+   ```
+   python tsne.py
+   ```
+
+3. Open a web browser and navigate to the URL displayed in the console (typically http://127.0.0.1:8050/).
+
+This will launch a local Dash server and open the interactive t-SNE visualization of player embeddings in your default web browser.
+
+## Project Structure
+
+- `data/`: Contains pre-downloaded Premier League data
+- `doc/`: Documentation files, including StatsBomb event specifications
+- `sql_queries.sql`: Sample SQL queries for data analysis
+- `load_to_bigquery.py`: Script to load data into BigQuery
+- `requirements.txt`: List of Python dependencies
+- `statsbomb_schema.json`: JSON schema for StatsBomb data
+- `tsne-players.py`: Script for t-SNE visualization of player embeddings
+
+## Resources
+
+- [StatsBomb Open Data](https://github.com/statsbomb/open-data)
+- [Google Cloud Documentation](https://cloud.google.com/docs)
+- [BigQuery ML Documentation](https://cloud.google.com/bigquery-ml/docs)
+- [Vertex AI Documentation](https://cloud.google.com/vertex-ai/docs)
+
+## Support
+
+If you encounter any issues or have questions, please open an issue in this repository.
+
+Happy hacking!
