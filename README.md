@@ -93,59 +93,56 @@ This repository contains the necessary code and instructions to run a data analy
 
 The `sql_queries.sql` file contains a comprehensive set of SQL queries, views, and machine learning models that you can use to analyze the StatsBomb data. Here are some of the key use cases and experiments you can run:
 
-1. **Data Exploration**:
-   - Examine the schema of the StatsBomb data
-   - Analyze goals by body part for each player and team
-   - Identify top scorers in the dataset
-   - Calculate team possession percentages
+1. **Schema Evaluation**:
+   - Examine the schema of the StatsBomb data using the `vw_schema_info` view
 
-2. **Player Analysis**:
+2. **Data Exploration Views**:
+   - Analyze goals by body part for each player and team (`vw_goals_by_body_part`)
+   - Identify top scorers in the dataset (`vw_top_scorers`)
+   - Calculate team possession percentages (`vw_team_possession`)
+
+3. **Player Analysis**:
    - Create a detailed view of player statistics (`vw_player_stats`)
    - Analyze player shots and their characteristics (`vw_player_shots`)
-   - Cluster players based on their performance metrics
-   - Predict player performance scores
 
-3. **Match Analysis**:
+4. **Match Analysis**:
    - Generate comprehensive match statistics (`vw_match_stats`)
-   - Predict match outcomes based on in-game events
 
-4. **Expected Goals (xG) Analysis**:
-   - Build and test an xG prediction model
-   - Analyze the factors that contribute most to xG
+5. **Advanced Analytics and Machine Learning Models**:
+   - Cluster players based on their performance metrics (`player_clusters` model)
+   - Predict expected goals (xG) for shots (`xg_prediction` model)
+   - Predict whether a shot will result in a goal (`goal_prediction_model`)
+   - Predict match outcomes based on in-game events (`match_outcome_prediction` model)
 
-5. **Goal Prediction**:
-   - Create a model to predict whether a shot will result in a goal
-   - Analyze the most important features for goal prediction
-
-6. **Team Performance**:
-   - Analyze team possession patterns
-   - Evaluate team performance across various metrics
-
-7. **Advanced Analytics**:
-   - Use the Vertex AI connection to leverage Gemini Pro for natural language processing tasks, such as generating stadium locations
+6. **Player Embeddings and Similarity Search**:
+   - Generate player embeddings based on their statistics
+   - Perform similarity searches to find players with similar characteristics
 
 ## Advanced Analytics and Machine Learning Models
 
 The `sql_queries.sql` file includes several sophisticated machine learning models:
 
-1. **Player Clustering Model**: Uses K-means clustering to group players based on their performance statistics. The model includes hyperparameter tuning to optimize the number of clusters.
+1. **Player Clustering Model**: Uses K-means clustering to group players based on their performance statistics. The model includes hyperparameter tuning to optimize the number of clusters (3 to 6).
 
-2. **Expected Goals (xG) Prediction Model**: A linear regression model that predicts the probability of a shot resulting in a goal based on various factors.
+2. **Expected Goals (xG) Prediction Model**: A linear regression model that predicts the probability of a shot resulting in a goal based on various factors such as shot type, body part, technique, and location.
 
-3. **Goal Prediction Model**: A logistic regression model that predicts whether a shot will result in a goal.
+3. **Goal Prediction Model**: A logistic regression model that predicts whether a shot will result in a goal based on features from the `vw_player_shots` view.
 
-4. **Match Outcome Prediction Model**: A logistic regression model that predicts the outcome of a match based on in-game statistics.
+4. **Match Outcome Prediction Model**: A logistic regression model that predicts the outcome of a match (home win, away win, or draw) based on in-game statistics from the `vw_match_stats` view.
+
+5. **Player Embedding Model**: A PCA model that generates embeddings for players based on their performance statistics, allowing for efficient similarity searches.
 
 These models can be created and tested using the provided SQL queries. You can experiment with different features, model parameters, or even try different model types to improve predictions.
 
 ## Vertex AI Integration
 
-The project leverages Google Cloud's Vertex AI capabilities, particularly the Gemini Pro model, for advanced natural language processing tasks. For example, the SQL queries demonstrate how to use Gemini Pro to generate latitude and longitude coordinates for stadiums based on their names.
+The project leverages Google Cloud's Vertex AI capabilities, particularly the Gemini Pro model, for advanced natural language processing tasks. The SQL queries demonstrate how to create a connection to the Gemini Pro model, which can be used for various NLP tasks.
 
 ## Data Exploration Views
 
 Several views are created to facilitate data exploration and analysis:
 
+- `vw_schema_info`: Provides information about the schema of all tables in the dataset.
 - `vw_goals_by_body_part`: Analyzes goals scored by different body parts for each player and team.
 - `vw_top_scorers`: Ranks players by the number of goals scored.
 - `vw_team_possession`: Calculates average possession percentages for each team.
@@ -159,20 +156,20 @@ These views can be used as a starting point for further analysis or as input for
 
 The project includes advanced player similarity analysis using embeddings:
 
-1. **Player Statistics View**: We create a view `vw_player_stats` that aggregates various performance metrics for each player.
-2. **Player Statistics Table**: We create a table `player_stats_table` from the view, adding a temporary label for classification purposes.
-3. **Player Embedding Model**: We create a DNN classifier model to generate meaningful embeddings for each player based on their performance statistics.
-4. **Player Embeddings**: Using the DNN model, we generate embeddings for each player based on the feature importance weights.
-5. **Vector Index**: A vector index is created on these embeddings to enable efficient similarity search.
-6. **Similarity Search**: A custom function `find_similar_players` allows you to find the top 5 players most similar to any given player.
+1. **Player Statistics View**: We create a view `vw_player_stats_for_embeddings` that aggregates various performance metrics for each player.
+2. **Player Embedding Model**: We create a PCA model to generate meaningful embeddings for each player based on their performance statistics.
+3. **Player Embeddings**: Using the PCA model, we generate embeddings for each player and store them in the `player_embeddings` table.
+4. **Similarity Search**: You can use vector search queries to find players similar to a given player based on their embeddings.
 
 This feature can be used for player scouting, tactical analysis, or understanding player styles across different teams and leagues. The embeddings are based on a wide range of player actions including passes, shots, ball recoveries, duels, interceptions, goals, pressures, dribbles, fouls, carries, clearances, and blocks.
 
-Example usage:
+Example usage (commented out in the SQL file):
 
 ```sql
-SELECT * FROM `statsbomb.find_similar_players`('Lionel Andrés Messi Cuccittini');
+SELECT base.* FROM VECTOR_SEARCH(TABLE `statsbomb.player_embeddings`, 'ml_generate_embedding_result', (SELECT ml_generate_embedding_result FROM `statsbomb.player_embeddings` WHERE player_name = 'Petr Čech'), top_k => 10, distance_type => 'COSINE') WHERE base.player_name != 'Petr Čech';
 ```
+
+This query would find the top 10 players most similar to Petr Čech based on their performance statistics.
 
 ## Running t-SNE Visualization Locally
 
