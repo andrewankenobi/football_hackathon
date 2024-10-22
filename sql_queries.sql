@@ -292,6 +292,22 @@
       MODEL `statsbomb.player_embedding_model`,
       TABLE `statsbomb.vw_player_stats_for_embeddings`);
 
+  -- Register player_clusters model
+  ALTER MODEL IF EXISTS `statsbomb.player_clusters` 
+  SET OPTIONS (vertex_ai_model_id="statsbomb_player_clusters");
+
+  -- Register xg_prediction model
+  ALTER MODEL IF EXISTS `statsbomb.xg_prediction` 
+  SET OPTIONS (vertex_ai_model_id="statsbomb_xg_prediction");
+
+  -- Register goal_prediction_model
+  ALTER MODEL IF EXISTS `statsbomb.goal_prediction_model` 
+  SET OPTIONS (vertex_ai_model_id="statsbomb_goal_prediction");
+
+  -- Register match_outcome_prediction model
+  ALTER MODEL IF EXISTS `statsbomb.match_outcome_prediction` 
+  SET OPTIONS (vertex_ai_model_id="statsbomb_match_outcome_prediction");
+
   -- SECTION 9: Queries to Showcase Results
   -- These queries demonstrate the insights we can gain from our views, tables, and models
   -- Note: These should be run separately after all the above DDL statements have been executed
