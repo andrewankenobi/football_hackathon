@@ -16,6 +16,7 @@ import vertexai
 from vertexai.preview.generative_models import GenerativeModel
 import dash_bootstrap_components as dbc
 import time
+from dash.exceptions import PreventUpdate
 
 # Connect to BigQuery and fetch data
 client = bigquery.Client()
@@ -229,15 +230,13 @@ app.layout = html.Div([
                     'marginBottom': '10px'
                 }),
                 html.Div([
-                    dcc.Input(id='team-search', type='text', placeholder='Search team', style={'margin-right': '10px'}),
-                    html.Button('Search', id='team-search-button', n_clicks=0),
-                ], style={'margin-bottom': '10px'}),
-                html.Div([
                     dcc.Dropdown(
                         id='team-select',
                         options=[{'label': team, 'value': team} for team in sorted(team_df['team_name'].unique())],
-                        multi=True,  # Allow multiple selections
-                        placeholder="Select team(s)"
+                        multi=True,
+                        placeholder="Select team(s)",
+                        searchable=True,
+                        clearable=True
                     ),
                 ], style={'margin-bottom': '10px'}),
                 dcc.Loading(
@@ -273,107 +272,105 @@ app.layout = html.Div([
 
             # Player View
             html.Div([
-                html.H2("Player View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
-                html.Div([
-                    html.Details([
-                        html.Summary("Adjust t-SNE map settings", style={
-                            'cursor': 'pointer',
-                            'font-family': 'Montserrat',
-                            'font-weight': '700',
-                            'color': '#4285F4',
-                            'margin-bottom': '10px',
-                            'font-size': '18px'
-                        }),
-                        html.Div([
-                            html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
-                            dcc.Slider(
-                                id='player-perplexity-slider',
-                                min=5,
-                                max=100,
-                                step=5,
-                                value=45,
-                                marks=None,
-                                tooltip={"placement": "bottom", "always_visible": True},
-                                className='custom-slider'
-                            ),
-                        ], style={'margin-bottom': '10px'}),
-                        html.Div([
-                            html.Label("Iterations:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
-                            dcc.Slider(
-                                id='player-iterations-slider',
-                                min=100,
-                                max=1000,
-                                step=100,
-                                value=700,
-                                marks=None,
-                                tooltip={"placement": "bottom", "always_visible": True},
-                                className='custom-slider'
-                            ),
-                        ])
+                html.Div(id='player-view-container', children=[
+                    html.H2("Player View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
+                    html.Div([
+                        html.Details([
+                            html.Summary("Adjust t-SNE map settings", style={
+                                'cursor': 'pointer',
+                                'font-family': 'Montserrat',
+                                'font-weight': '700',
+                                'color': '#4285F4',
+                                'margin-bottom': '10px',
+                                'font-size': '18px'
+                            }),
+                            html.Div([
+                                html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
+                                dcc.Slider(
+                                    id='player-perplexity-slider',
+                                    min=5,
+                                    max=100,
+                                    step=5,
+                                    value=45,
+                                    marks=None,
+                                    tooltip={"placement": "bottom", "always_visible": True},
+                                    className='custom-slider'
+                                ),
+                            ], style={'margin-bottom': '10px'}),
+                            html.Div([
+                                html.Label("Iterations:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
+                                dcc.Slider(
+                                    id='player-iterations-slider',
+                                    min=100,
+                                    max=1000,
+                                    step=100,
+                                    value=700,
+                                    marks=None,
+                                    tooltip={"placement": "bottom", "always_visible": True},
+                                    className='custom-slider'
+                                ),
+                            ])
+                        ], style={
+                            'backgroundColor': '#f1f3f4',
+                            'padding': '10px',
+                            'borderRadius': '20px',
+                            'marginBottom': '10px'
+                        })
                     ], style={
                         'backgroundColor': '#f1f3f4',
                         'padding': '10px',
                         'borderRadius': '20px',
                         'marginBottom': '10px'
-                    })
-                ], style={
-                    'backgroundColor': '#f1f3f4',
-                    'padding': '10px',
-                    'borderRadius': '20px',
-                    'marginBottom': '10px'
-                }),
-                html.Div([
-                    dcc.Input(id='player-search', type='text', placeholder='Search player', style={'margin-right': '10px'}),
-                    html.Button('Search', id='player-search-button', n_clicks=0),
-                ], style={'margin-bottom': '10px'}),
-                html.Div([
-                    dcc.Dropdown(
-                        id='position-filter',
-                        options=[{'label': pos, 'value': pos} for pos in sorted(player_df['position'].unique())],
-                        multi=True,
-                        placeholder="Select positions"
+                    }),
+                    html.Div([
+                        html.Div([
+                            dcc.Dropdown(
+                                id='player-select',
+                                multi=True,
+                                placeholder="Select player(s)"
+                            ),
+                        ], style={'width': '48%', 'display': 'inline-block', 'marginRight': '4%'}),
+                        html.Div([
+                            dcc.Dropdown(
+                                id='position-filter',
+                                multi=True,
+                                placeholder="Select positions"
+                            ),
+                        ], style={'width': '48%', 'display': 'inline-block'}),
+                    ], style={'marginBottom': '10px'}),
+                    dcc.Loading(
+                        id="loading-player",
+                        type="default",
+                        children=[dcc.Graph(id='player-tsne-plot')]
                     ),
-                ], style={'margin-bottom': '10px'}),
-                dcc.Loading(
-                    id="loading-player",
-                    type="default",
-                    children=[dcc.Graph(id='player-tsne-plot')]
-                ),
-                html.Div([
-                    html.Details([
-                        html.Summary("Player Feature Importance", style={
-                            'cursor': 'pointer',
-                            'font-family': 'Montserrat',
-                            'font-weight': '700',
-                            'color': '#4285F4',
-                            'margin-bottom': '10px',
-                            'font-size': '18px'
-                        }),
-                        html.Div(id='feature-importance')
-                    ], style={
-                        'margin-top': '20px',
-                        'backgroundColor': '#f1f3f4',
-                        'padding': '10px',
-                        'borderRadius': '20px',
-                        'marginBottom': '10px'
-                    })
-                ], className='feature-importance-box'),
-                dcc.Loading(
-                    id="loading-player-insights",
-                    type="default",
-                    children=[html.Div(id='player-insights', style={'margin-top': '20px'})]
-                ),
+                    html.Div([
+                        html.Details([
+                            html.Summary("Player Feature Importance", style={
+                                'cursor': 'pointer',
+                                'font-family': 'Montserrat',
+                                'font-weight': '700',
+                                'color': '#4285F4',
+                                'margin-bottom': '10px',
+                                'font-size': '18px'
+                            }),
+                            html.Div(id='feature-importance')
+                        ], style={
+                            'margin-top': '20px',
+                            'backgroundColor': '#f1f3f4',
+                            'padding': '10px',
+                            'borderRadius': '20px',
+                            'marginBottom': '10px'
+                        })
+                    ], className='feature-importance-box'),
+                    dcc.Loading(
+                        id="loading-player-insights",
+                        type="default",
+                        children=[html.Div(id='player-insights', style={'margin-top': '20px'})]
+                    ),
+                ]),
+                html.Div(id='player-view-message', style={'display': 'none'})
             ], style={'width': '48%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '4%'}),
         ], style={'display': 'flex', 'alignItems': 'flex-start'}),  # Add this style to align the two views
-        html.Div([
-            html.P(f"© {current_year} Made by andrewankenobi@google.com", style={
-                'font-family': 'Inter',
-                'color': '#5f6368',
-                'font-size': '12px',
-                'text-align': 'center',
-                'margin-top': '20px'
-            })
-        ])
     ], style={
         'max-width': '1800px',
         'margin': '0 auto',
@@ -382,9 +379,28 @@ app.layout = html.Div([
         'background-color': '#ffffff',
         'box-shadow': '0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15)',
         'border-radius': '20px'
-    })
+    }),
+
+    # Credits
+    html.Div(
+        f"{datetime.datetime.now().year} | Made with ♥ by andrewankenobi@google.com | powered by Google Cloud",
+        style={
+            'position': 'fixed',
+            'bottom': '0',
+            'left': '50%',
+            'transform': 'translateX(-50%)',
+            'background-color': '#f1f3f4',
+            'padding': '10px 20px',
+            'border-radius': '10px 10px 0 0',
+            'font-family': 'Inter, sans-serif',
+            'font-size': '14px',
+            'color': '#333',
+            'box-shadow': '0 -2px 4px rgba(0, 0, 0, 0.1)',
+            'z-index': '1000'
+        }
+    )
 ], style={
-    'background-color': '#CEDAEC',
+    'background': 'linear-gradient(to bottom, #5B9BFF, #4285F4)',
     'min-height': '100vh',
     'padding': '20px'
 })
@@ -401,12 +417,10 @@ feature_columns = ['pass_ratio', 'shot_ratio', 'ball_recovery_ratio', 'duel_rati
      Output('team-insights', 'children', allow_duplicate=True)],
     [Input('team-perplexity-slider', 'value'),
      Input('team-iterations-slider', 'value'),
-     Input('team-search-button', 'n_clicks'),
      Input('team-select', 'value')],
-    [State('team-search', 'value')],
     prevent_initial_call='initial_duplicate'
 )
-def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
+def update_team_plot(perplexity, n_iter, selected_teams):
     global feature_columns
     
     tsne = TSNE(n_components=3, perplexity=min(perplexity, n_teams - 1), n_iter=n_iter, random_state=42)
@@ -433,15 +447,6 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
         margin=dict(l=0, r=0, t=40, b=0)
     )
     
-    if search_team:
-        search_team_lower = search_team.lower()
-        team_data = team_df[team_df['team_name'].str.lower().str.contains(search_team_lower, na=False)]
-        if not team_data.empty:
-            highlight_trace = px.scatter_3d(team_data, x='x', y='y', z='z', hover_name='team_name',
-                                            color_discrete_sequence=['#EA4335']).data[0]  # Google Red
-            highlight_trace.update(marker=dict(size=10))
-            scatter_fig.add_trace(highlight_trace)
-    
     if selected_teams:
         team_data = team_df[team_df['team_name'].isin(selected_teams)]
         highlight_trace = px.scatter_3d(team_data, x='x', y='y', z='z', hover_name='team_name',
@@ -449,11 +454,13 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
         highlight_trace.update(marker=dict(size=10))
         scatter_fig.add_trace(highlight_trace)
     
+    # Disable click events on the plot
+    scatter_fig.update_layout(clickmode='none')
+    
     # Generate insights
     insights_data = team_df[['team_name', 'x', 'y', 'z'] + feature_columns].to_dict('records')
     insights = generate_insights(insights_data, selected_teams, "team", perplexity, n_iter)
     insights_div = html.Div([
-        
         dcc.Markdown(insights, dangerously_allow_html=True)
     ])
     
@@ -463,91 +470,139 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
 @app.callback(
     [Output('player-tsne-plot', 'figure'),
      Output('filtered-data', 'data'),
-     Output('player-insights', 'children', allow_duplicate=True)],
-    [Input('player-perplexity-slider', 'value'),
+     Output('player-insights', 'children')],
+    [Input('team-select', 'value'),
+     Input('player-perplexity-slider', 'value'),
      Input('player-iterations-slider', 'value'),
-     Input('player-search-button', 'n_clicks'),
-     Input('position-filter', 'value'),
-     Input('team-tsne-plot', 'clickData'),
-     Input('team-select', 'value')],
-    [State('player-search', 'value')],
+     Input('player-select', 'value'),
+     Input('position-filter', 'value')],
+    [State('player-tsne-plot', 'figure')],
     prevent_initial_call=True
 )
-def update_player_plot(perplexity, n_iter, n_clicks, positions, click_data, selected_teams, search_player):
-    if not selected_teams:
-        return go.Figure(), [], html.Div(
-            "Please select one or more teams to view player insights.",
-            style={
-                'font-family': 'Montserrat',
-                'font-size': '18px',
-                'text-align': 'center',
-                'color': '#4285F4',
-                'margin-top': '20px'
-            }
-        )
+def update_player_plot(selected_teams, perplexity, n_iter, selected_players, selected_positions, current_figure):
+    triggered = [t['prop_id'] for t in ctx.triggered]
+    
+    if 'team-select.value' in triggered or 'player-perplexity-slider.value' in triggered or 'player-iterations-slider.value' in triggered:
+        # Recalculate t-SNE if teams or t-SNE parameters changed
+        if not selected_teams:
+            return go.Figure(), [], None
 
-    global feature_columns
-    
-    tsne = TSNE(n_components=3, perplexity=perplexity, n_iter=n_iter, random_state=42)
-    tsne_results = tsne.fit_transform(player_embeddings)
-    
-    player_df['x'] = tsne_results[:, 0]
-    player_df['y'] = tsne_results[:, 1]
-    player_df['z'] = tsne_results[:, 2]
-    
-    # Filter by position if specified
-    filtered_df = player_df[player_df['position'].isin(positions)] if positions else player_df
-    
-    # Filter by selected teams
-    if click_data:
-        clicked_team = click_data['points'][0]['hovertext']
-        if clicked_team not in selected_teams:
-            selected_teams = selected_teams + [clicked_team] if selected_teams else [clicked_team]
-    
-    if selected_teams:
-        filtered_df = filtered_df[filtered_df['team_name'].isin(selected_teams)]
-    
-    fig = px.scatter_3d(filtered_df, x='x', y='y', z='z', 
-                        color='position',
-                        hover_name='player_name', 
-                        hover_data=['team_name', 'position'],
-                        color_discrete_sequence=px.colors.qualitative.Set1)
-    fig.update_traces(marker=dict(size=5))
-    fig.update_layout(
-        height=750,
-        font_family='Inter',
-        title_font_family='Montserrat',
-        paper_bgcolor='#ffffff',
-        plot_bgcolor='#CEDAEC',
-        scene=dict(
-            xaxis=dict(showgrid=False, zeroline=False),
-            yaxis=dict(showgrid=False, zeroline=False),
-            zaxis=dict(showgrid=False, zeroline=False),
-        ),
-        margin=dict(l=0, r=0, t=40, b=0)
-    )
-    
-    # Highlight searched player
-    if search_player:
-        search_player_lower = search_player.lower()
-        player_data = filtered_df[filtered_df['player_name'].str.lower().str.contains(search_player_lower, na=False)]
-        if not player_data.empty:
-            search_trace = px.scatter_3d(player_data, x='x', y='y', z='z', 
-                                         hover_name='player_name',
-                                         hover_data=['team_name', 'position'],
-                                         color_discrete_sequence=['#FBBC05']).data[0]  # Google Yellow
-            search_trace.update(marker=dict(size=10, symbol='star'))
-            fig.add_trace(search_trace)
-    
-    # Generate insights
-    insights_data = filtered_df[['player_name', 'team_name', 'position', 'x', 'y', 'z'] + feature_columns].to_dict('records')
-    insights = generate_insights(insights_data, positions, "player", perplexity, n_iter)
-    insights_div = html.Div([
+        global feature_columns, player_df
         
-        dcc.Markdown(insights, dangerously_allow_html=True)
-    ])
+        filtered_df = player_df[player_df['team_name'].isin(selected_teams)].copy()
+        
+        # Perform t-SNE on the filtered player data
+        tsne = TSNE(n_components=3, perplexity=min(perplexity, len(filtered_df) - 1), n_iter=n_iter, random_state=42)
+        tsne_results = tsne.fit_transform(filtered_df[feature_columns].values)
+        
+        filtered_df['x'] = tsne_results[:, 0]
+        filtered_df['y'] = tsne_results[:, 1]
+        filtered_df['z'] = tsne_results[:, 2]
+        
+        fig = go.Figure(data=[go.Scatter3d(
+            x=filtered_df['x'],
+            y=filtered_df['y'],
+            z=filtered_df['z'],
+            mode='markers',
+            marker=dict(
+                size=5,
+                color='#4285F4',  # Google Blue
+                opacity=0.8
+            ),
+            text=filtered_df['player_name'] + '<br>' + filtered_df['position'] + '<br>' + filtered_df['team_name'],
+            hoverinfo='text'
+        )])
+
+        fig.update_layout(
+            height=750,
+            font_family='Inter',
+            title_font_family='Montserrat',
+            paper_bgcolor='#ffffff',
+            plot_bgcolor='#CEDAEC',
+            scene=dict(
+                xaxis=dict(showgrid=False, zeroline=False, visible=True, title=''),
+                yaxis=dict(showgrid=False, zeroline=False, visible=True, title=''),
+                zaxis=dict(showgrid=False, zeroline=False, visible=True, title=''),
+            ),
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+        
+        # Generate insights
+        insights_data = filtered_df[['player_name', 'team_name', 'position'] + feature_columns].to_dict('records')
+        insights = generate_insights(insights_data, None, "player", perplexity, n_iter)
+        insights_div = html.Div([
+            dcc.Markdown(insights, dangerously_allow_html=True)
+        ])
+        
+        return fig, filtered_df.to_dict('records'), insights_div
     
-    return fig, filtered_df[['player_name', 'team_name', 'position', 'x', 'y', 'z'] + feature_columns].to_dict('records'), insights_div
+    else:
+        # Only highlight players/positions if those inputs changed
+        if not current_figure:
+            raise PreventUpdate
+
+        # Extract data from the current figure
+        data = current_figure['data'][0]
+        df = pd.DataFrame({
+            'x': data['x'],
+            'y': data['y'],
+            'z': data['z'],
+            'text': data['text']
+        })
+        
+        # Create a copy of the current figure
+        fig = go.Figure(current_figure)
+
+        # Remove any existing highlight traces
+        fig.data = [trace for trace in fig.data if trace.name not in ['Highlighted Players', 'Highlighted Positions']]
+
+        # Update the base trace
+        base_trace = fig.data[0]
+        base_trace.marker.size = 5
+        base_trace.marker.opacity = 0.5
+        base_trace.marker.color = '#4285F4'  # Google Blue
+
+        # Highlight selected players
+        if selected_players:
+            player_data = df[df['text'].str.contains('|'.join(selected_players), case=False)]
+            if not player_data.empty:
+                highlight_trace = go.Scatter3d(
+                    x=player_data['x'], y=player_data['y'], z=player_data['z'],
+                    mode='markers',
+                    marker=dict(
+                        size=10,
+                        color='#EA4335',  # Google Red
+                        symbol='diamond',
+                        line=dict(width=2, color='#FFFFFF'),  # White border
+                        opacity=1
+                    ),
+                    name='Highlighted Players',
+                    text=player_data['text'],
+                    hoverinfo='text'
+                )
+                fig.add_trace(highlight_trace)
+
+        # Highlight selected positions
+        if selected_positions:
+            position_data = df[df['text'].str.contains('|'.join(selected_positions), case=False)]
+            if not position_data.empty:
+                highlight_trace = go.Scatter3d(
+                    x=position_data['x'], y=position_data['y'], z=position_data['z'],
+                    mode='markers',
+                    marker=dict(
+                        size=8,
+                        color='#FBBC05',  # Google Yellow
+                        symbol='circle',
+                        line=dict(width=2, color='#FFFFFF'),  # White border
+                        opacity=1
+                    ),
+                    name='Highlighted Positions',
+                    text=position_data['text'],
+                    hoverinfo='text'
+                )
+                fig.add_trace(highlight_trace)
+
+        return fig, dash.no_update, dash.no_update
 
 # Modify the feature importance callback
 @app.callback(
@@ -668,11 +723,13 @@ model = GenerativeModel("gemini-1.5-pro")
 # Generation config for Gemini
 generation_config = {
     "max_output_tokens": 1024,
-    "temperature": 0.2,
-    "top_p": 0.8,
+    "temperature": 0.1,
+    "top_p": 0.1
 }
 
 def generate_insights(data, selected_items=None, item_type="team", perplexity=30, n_iter=1000):
+    # Remove the lines that try to read perplexity and n_iter from the layout
+    
     # Prepare the data for Gemini
     data_str = json.dumps(data, indent=2)
     
@@ -711,6 +768,42 @@ def generate_insights(data, selected_items=None, item_type="team", perplexity=30
     time.sleep(1)
     
     return response.text
+
+@app.callback(
+    [Output('player-select', 'options', allow_duplicate=True),
+     Output('player-select', 'value'),
+     Output('position-filter', 'options', allow_duplicate=True),
+     Output('position-filter', 'value')],
+    [Input('team-select', 'value')],
+    prevent_initial_call=True
+)
+def update_player_position_options(selected_teams):
+    if not selected_teams:
+        return [], [], [], []
+    
+    filtered_players = player_df[player_df['team_name'].isin(selected_teams)]['player_name'].unique()
+    player_options = [{'label': player, 'value': player} for player in sorted(filtered_players)]
+    
+    filtered_positions = player_df[player_df['team_name'].isin(selected_teams)]['position'].unique()
+    position_options = [{'label': pos, 'value': pos} for pos in sorted(filtered_positions)]
+    
+    return player_options, [], position_options, []  # Reset the selected players and positions when teams change
+
+@app.callback(
+    [Output('player-view-container', 'style'),
+     Output('player-view-message', 'children'),
+     Output('player-view-message', 'style')],
+    [Input('team-select', 'value')]
+)
+def toggle_player_view(selected_teams):
+    if not selected_teams:
+        return {'display': 'none'}, html.Div([
+            html.H2("Player View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
+            html.P("Please select one or more teams to view player data.", 
+                   style={'font-family': 'Inter', 'font-size': '18px', 'text-align': 'center'})
+        ]), {'display': 'block'}
+    else:
+        return {'display': 'block'}, None, {'display': 'none'}
 
 if __name__ == '__main__':
     app.run_server(debug=True)
