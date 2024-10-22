@@ -1,22 +1,21 @@
+import os
+from dash import Dash, dcc, html, dash_table, callback_context as ctx
+from dash.dependencies import Input, Output, State, ALL
+from dash.exceptions import PreventUpdate
+import dash_bootstrap_components as dbc
+import plotly.express as px
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 from sklearn.manifold import TSNE
-import plotly.express as px
 from google.cloud import bigquery
-import dash
-from dash import dcc, html, dash_table
-from dash.dependencies import Input, Output, State, ALL
 import datetime
 import json
 from scipy.stats import spearmanr
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-from dash import callback_context as ctx
 import vertexai
 from vertexai.preview.generative_models import GenerativeModel
-import dash_bootstrap_components as dbc
 import time
-from dash.exceptions import PreventUpdate
 
 # Connect to BigQuery and fetch data
 client = bigquery.Client()
@@ -149,7 +148,8 @@ max_perplexity_teams = min(30, n_teams - 1)
 
 # Initialize the Dash app
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, title="Football t-SNE", external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
+app = Dash(__name__, title="Football t-SNE", external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
+server = app.server  # Add this line
 
 current_year = datetime.datetime.now().year
 
@@ -870,4 +870,4 @@ def toggle_player_view(selected_teams):
         return {'display': 'block'}, None, {'display': 'none'}
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

@@ -2,6 +2,7 @@
 google-cloud-bigquery
 google-cloud-storage
 google-cloud-aiplatform
+vertexai
 
 # Data processing and analysis
 pandas
@@ -35,3 +36,5 @@ python-dotenv
 # Interactive widgets
 ipywidgets
 dash
+dash-bootstrap-components
+gunicorn

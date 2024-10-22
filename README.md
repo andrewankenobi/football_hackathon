@@ -257,7 +257,7 @@ After completing the setup and data loading steps, you can run the t-SNE visuali
    python tsne.py
    ```
 
-3. Open a web browser and navigate to the URL displayed in the console (typically http://127.0.0.1:8050/).
+3. Open a web browser and navigate to the URL displayed in the console (typically http://127.0.0.1:8080/).
 
 This command will start a local Dash server and display an interactive t-SNE visualization of player embeddings. Once launched, open your default web browser and navigate to the provided URL (typically http://127.0.0.1:8050/). You will be presented with an interface similar to the following:
 
