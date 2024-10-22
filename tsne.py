@@ -758,70 +758,124 @@ def generate_insights(data, selected_items=None, item_type="team", perplexity=30
     Provide insights in the following structure:
     """
     
-    if not selected_items:
-        context += """
-        1. Overview of All Teams:
-           - Total number of teams
-           - General distribution in the t-SNE space
-        
-        2. Clustering Analysis:
-           - Identify 2-3 main clusters of teams
-           - Describe the characteristics of each cluster
-        
-        3. Outliers:
-           - Identify 1-2 outlier teams (if any)
-           - Explain what makes them unique
-        
-        4. Key Metrics:
-           - List the top 3 metrics that seem to influence the teams' positions most
-           - Briefly explain how each metric affects positioning
-        
-        5. Overall Trends:
-           - Summarize 2-3 major trends observed in the team data
-        """
-    elif len(selected_items) == 1:
-        context += f"""
-        1. Overview of {selected_items[0]}:
-           - Position in the t-SNE space
-           - Key characteristics based on metrics
-        
-        2. Comparison to Other Teams:
-           - How {selected_items[0]} compares to the average team
-           - Identify 2-3 most similar teams and explain why
-        
-        3. Player Analysis for {selected_items[0]}:
-           - Overview of player distribution
-           - Identify 2-3 key players and their characteristics
-           - Compare these players to the team average
-        
-        4. Key Metrics for {selected_items[0]}:
-           - List the top 3 metrics that define this team's style
-           - Explain how these metrics contribute to the team's positioning
-        
-        5. Areas for Improvement:
-           - Suggest 2-3 areas where {selected_items[0]} could improve based on the data
-        """
-    else:
-        teams_str = ", ".join(selected_items)
-        context += f"""
-        1. Overview of Selected Teams ({teams_str}):
-           - Brief description of each team's position in the t-SNE space
-        
-        2. Team Comparison:
-           - Compare and contrast the selected teams
-           - Identify similarities and differences in playing styles
-        
-        3. Player Analysis:
-           - For each team, identify 1-2 standout players
-           - Compare these players across the selected teams
-        
-        4. Key Metrics:
-           - List the top 3 metrics that differentiate these teams
-           - Explain how these metrics affect each team's positioning
-        
-        5. Competitive Analysis:
-           - Suggest potential strategies for each team when playing against the others
-        """
+    if item_type == "team":
+        if not selected_items:
+            context += """
+            1. Overview of All Teams:
+               - Total number of teams
+               - General distribution in the t-SNE space
+            
+            2. Clustering Analysis:
+               - Identify 2-3 main clusters of teams
+               - Describe the characteristics of each cluster
+            
+            3. Outliers:
+               - Identify 1-2 outlier teams (if any)
+               - Explain what makes them unique
+            
+            4. Key Metrics:
+               - List the top 3 metrics that seem to influence the teams' positions most
+               - Briefly explain how each metric affects positioning
+            
+            5. Overall Trends:
+               - Summarize 2-3 major trends observed in the team data
+            """
+        elif len(selected_items) == 1:
+            context += f"""
+            1. Overview of {selected_items[0]}:
+               - Position in the t-SNE space
+               - Key characteristics based on metrics
+            
+            2. Comparison to Other Teams:
+               - How {selected_items[0]} compares to the average team
+               - Identify 2-3 most similar teams and explain why
+               - Identify 2-3 most different teams and explain why
+            
+            3. Strengths and Weaknesses:
+               - List 3 main strengths of {selected_items[0]} based on the data
+               - List 3 potential weaknesses or areas for improvement
+            
+            4. Key Metrics for {selected_items[0]}:
+               - List the top 3 metrics that define this team's style
+               - Explain how these metrics contribute to the team's positioning
+            
+            5. Strategic Insights:
+               - Suggest 2-3 strategies that could be effective for {selected_items[0]} based on their playing style
+               - Identify potential challenges this team might face against different playing styles
+            """
+        else:
+            teams_str = ", ".join(selected_items)
+            context += f"""
+            1. Overview of Selected Teams ({teams_str}):
+               - Brief description of each team's position in the t-SNE space
+            
+            2. Team Comparison:
+               - Compare and contrast the selected teams
+               - Identify similarities and differences in playing styles
+            
+            3. Key Metrics:
+               - List the top 3 metrics that differentiate these teams
+               - Explain how these metrics affect each team's positioning
+            
+            4. Competitive Analysis:
+               - Suggest potential strategies for each team when playing against the others
+            """
+    elif item_type == "player":
+        if not selected_items:
+            context += """
+            1. Overview of All Players:
+               - Total number of players
+               - General distribution in the t-SNE space
+            
+            2. Clustering Analysis:
+               - Identify 2-3 main clusters of players
+               - Describe the characteristics of each cluster
+            
+            3. Outliers:
+               - Identify 1-2 outlier players (if any)
+               - Explain what makes them unique
+            
+            4. Key Metrics:
+               - List the top 3 metrics that seem to influence the players' positions most
+               - Briefly explain how each metric affects positioning
+            
+            5. Overall Trends:
+               - Summarize 2-3 major trends observed in the player data
+            """
+        elif len(selected_items) == 1:
+            context += f"""
+            1. Overview of {selected_items[0]}:
+               - Position in the t-SNE space
+               - Key characteristics based on metrics
+            
+            2. Comparison to Other Players:
+               - How {selected_items[0]} compares to the average player
+               - Identify 2-3 most similar players and explain why
+            
+            3. Key Metrics for {selected_items[0]}:
+               - List the top 3 metrics that define this player's style
+               - Explain how these metrics contribute to the player's positioning
+            
+            4. Areas for Improvement:
+               - Suggest 2-3 areas where {selected_items[0]} could improve based on the data
+            """
+        else:
+            players_str = ", ".join(selected_items)
+            context += f"""
+            1. Overview of Selected Players ({players_str}):
+               - Brief description of each player's position in the t-SNE space
+            
+            2. Player Comparison:
+               - Compare and contrast the selected players
+               - Identify similarities and differences in playing styles
+            
+            3. Key Metrics:
+               - List the top 3 metrics that differentiate these players
+               - Explain how these metrics affect each player's positioning
+            
+            4. Tactical Analysis:
+               - Suggest potential roles or positions for each player based on their characteristics
+            """
     
     context += """
     Format your response in HTML, using these tags:
