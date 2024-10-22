@@ -321,7 +321,8 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
 
 5. Deploy the application to App Engine using the following command:
    ```
-   gcloud app deploy   ```
+   gcloud app deploy
+   ```
 
 6. When prompted, select the region where you want to deploy your app.
 
@@ -329,7 +330,8 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
 
 8. Once the deployment is complete, you can view your application by running:
    ```
-   gcloud app browse   ```
+   gcloud app browse   
+   ```
 
    This will open your default web browser with the URL of your deployed application.
 
