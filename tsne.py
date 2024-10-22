@@ -543,7 +543,7 @@ def update_player_plot(perplexity, n_iter, n_clicks, positions, click_data, sele
     insights_data = filtered_df[['player_name', 'team_name', 'position', 'x', 'y', 'z'] + feature_columns].to_dict('records')
     insights = generate_insights(insights_data, positions, "player", perplexity, n_iter)
     insights_div = html.Div([
-        html.H2("Player Insights"),
+        
         dcc.Markdown(insights, dangerously_allow_html=True)
     ])
     
