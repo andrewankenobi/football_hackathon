@@ -524,7 +524,8 @@ def update_player_plot(selected_teams, perplexity, n_iter, selected_players, sel
                 yaxis=dict(showgrid=False, zeroline=False, visible=True, title=''),
                 zaxis=dict(showgrid=False, zeroline=False, visible=True, title=''),
             ),
-            margin=dict(l=0, r=0, t=40, b=0)
+            margin=dict(l=0, r=0, t=40, b=0),
+            showlegend=False  # Add this line to hide the legend
         )
         
         # Generate insights
@@ -578,7 +579,8 @@ def update_player_plot(selected_teams, perplexity, n_iter, selected_players, sel
                     ),
                     name='Highlighted Players',
                     text=player_data['text'],
-                    hoverinfo='text'
+                    hoverinfo='text',
+                    showlegend=False  # Add this line to hide the legend for this trace
                 )
                 fig.add_trace(highlight_trace)
 
@@ -598,9 +600,13 @@ def update_player_plot(selected_teams, perplexity, n_iter, selected_players, sel
                     ),
                     name='Highlighted Positions',
                     text=position_data['text'],
-                    hoverinfo='text'
+                    hoverinfo='text',
+                    showlegend=False  # Add this line to hide the legend for this trace
                 )
                 fig.add_trace(highlight_trace)
+
+        # Update layout to hide legend
+        fig.update_layout(showlegend=False)
 
         return fig, dash.no_update, dash.no_update
 
