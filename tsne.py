@@ -14,6 +14,8 @@ from plotly.subplots import make_subplots
 from dash import callback_context as ctx
 import vertexai
 from vertexai.preview.generative_models import GenerativeModel
+import dash_bootstrap_components as dbc
+import time
 
 # Connect to BigQuery and fetch data
 client = bigquery.Client()
@@ -228,8 +230,21 @@ app.layout = html.Div([
                     type="default",
                     children=[dcc.Graph(id='team-tsne-plot')]
                 ),
-                html.Div(id='team-feature-importance'),  # Add this line
-                html.Div(id='team-insights', style={'margin-top': '20px'}),
+                html.Details([
+                    html.Summary("Team Feature Importance", style={
+                        'cursor': 'pointer',
+                        'font-family': 'Montserrat',
+                        'font-weight': '600',
+                        'color': '#4285F4',
+                        'margin-bottom': '10px'
+                    }),
+                    html.Div(id='team-feature-importance')
+                ], style={'margin-top': '20px'}),
+                dcc.Loading(
+                    id="loading-team-insights",
+                    type="default",
+                    children=[html.Div(id='team-insights', style={'margin-top': '20px'})]
+                ),
             ], style={'width': '48%', 'display': 'inline-block', 'vertical-align': 'top'}),
 
             # Player View
@@ -285,8 +300,21 @@ app.layout = html.Div([
                     type="default",
                     children=[dcc.Graph(id='player-tsne-plot')]
                 ),
-                html.Div(id='feature-importance'),
-                html.Div(id='player-insights', style={'margin-top': '20px'}),
+                html.Details([
+                    html.Summary("Player Feature Importance", style={
+                        'cursor': 'pointer',
+                        'font-family': 'Montserrat',
+                        'font-weight': '600',
+                        'color': '#4285F4',
+                        'margin-bottom': '10px'
+                    }),
+                    html.Div(id='feature-importance')
+                ], style={'margin-top': '20px'}),
+                dcc.Loading(
+                    id="loading-player-insights",
+                    type="default",
+                    children=[html.Div(id='player-insights', style={'margin-top': '20px'})]
+                ),
             ], style={'width': '48%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '4%'}),
         ], style={'display': 'flex', 'alignItems': 'flex-start'}),  # Add this style to align the two views
         html.Div([
@@ -398,6 +426,24 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
     prevent_initial_call=True
 )
 def update_player_plot(perplexity, n_iter, n_clicks, positions, click_data, selected_teams, search_player):
+    if not selected_teams:
+        empty_fig = go.Figure()
+        empty_fig.update_layout(
+            title="Please select one or more teams to view player data",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            annotations=[
+                dict(
+                    text="No teams selected",
+                    xref="paper",
+                    yref="paper",
+                    showarrow=False,
+                    font=dict(size=28)
+                )
+            ]
+        )
+        return empty_fig, [], "Please select one or more teams to view player insights."
+
     global feature_columns
     
     tsne = TSNE(n_components=3, perplexity=perplexity, n_iter=n_iter, random_state=42)
@@ -618,6 +664,9 @@ def generate_insights(data, selected_items=None, item_type="team", perplexity=30
     
     # Generate insights using Gemini
     response = model.generate_content(prompt, generation_config=generation_config)
+    
+    # Add a small delay to show the loading animation
+    time.sleep(1)
     
     return response.text
 
