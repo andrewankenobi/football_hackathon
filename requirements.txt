@@ -38,3 +38,4 @@ ipywidgets
 dash
 dash-bootstrap-components
 gunicorn
+db-dtypes

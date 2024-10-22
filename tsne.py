@@ -1,21 +1,29 @@
 import os
-from dash import Dash, dcc, html, dash_table, callback_context as ctx
-from dash.dependencies import Input, Output, State, ALL
-from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
-import plotly.express as px
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 from sklearn.manifold import TSNE
+import plotly.express as px
 from google.cloud import bigquery
+import dash
+from dash import Dash, dcc, html, dash_table
+from dash.dependencies import Input, Output, State, ALL
 import datetime
 import json
 from scipy.stats import spearmanr
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+from dash import callback_context as ctx
 import vertexai
 from vertexai.preview.generative_models import GenerativeModel
+import dash_bootstrap_components as dbc
 import time
+from dash.exceptions import PreventUpdate
+
+# Add this block to handle potential import errors
+try:
+    import db_dtypes
+except ImportError:
+    print("Warning: db_dtypes module not found. This may cause issues with BigQuery data loading.")
 
 # Connect to BigQuery and fetch data
 client = bigquery.Client()
@@ -146,10 +154,11 @@ n_teams = len(team_df)
 # Set the maximum perplexity for teams
 max_perplexity_teams = min(30, n_teams - 1)
 
-# Initialize the Dash app
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+# Define external stylesheets (if you're using any)
+external_stylesheets = [dbc.themes.BOOTSTRAP]  # or any other stylesheets you're using
+
 app = Dash(__name__, title="Football t-SNE", external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
-server = app.server  # Add this line
+server = app.server
 
 current_year = datetime.datetime.now().year
 
