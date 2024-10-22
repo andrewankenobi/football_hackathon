@@ -162,7 +162,7 @@ app.layout = html.Div([
     ),
     html.Div([
         html.Div([
-            html.H1("Embeddings t-SNE Visualization", style={
+            html.H1("Visualizing Embeddings using a t-SNE map", style={
                 'font-family': 'Montserrat', 
                 'color': 'white',
                 'text-align': 'center',
@@ -181,32 +181,47 @@ app.layout = html.Div([
             html.Div([
                 html.H2("Team View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
                 html.Div([
-                    html.Div([
-                        html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
-                        dcc.Slider(
-                            id='team-perplexity-slider',
-                            min=5,
-                            max=max_perplexity_teams,
-                            step=1,
-                            value=min(30, max_perplexity_teams),
-                            marks=None,
-                            tooltip={"placement": "bottom", "always_visible": True},
-                            className='custom-slider'
-                        ),
-                    ], style={'width': '48%', 'display': 'inline-block', 'marginRight': '2%'}),
-                    html.Div([
-                        html.Label("Iterations:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
-                        dcc.Slider(
-                            id='team-iterations-slider',
-                            min=100,
-                            max=1000,
-                            step=100,
-                            value=700,
-                            marks=None,
-                            tooltip={"placement": "bottom", "always_visible": True},
-                            className='custom-slider'
-                        ),
-                    ], style={'width': '48%', 'display': 'inline-block'}),
+                    html.Details([
+                        html.Summary("Adjust t-SNE map settings", style={
+                            'cursor': 'pointer',
+                            'font-family': 'Montserrat',
+                            'font-weight': '700',
+                            'color': '#4285F4',
+                            'margin-bottom': '10px',
+                            'font-size': '18px'
+                        }),
+                        html.Div([
+                            html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
+                            dcc.Slider(
+                                id='team-perplexity-slider',
+                                min=5,
+                                max=max_perplexity_teams,
+                                step=1,
+                                value=min(30, max_perplexity_teams),
+                                marks=None,
+                                tooltip={"placement": "bottom", "always_visible": True},
+                                className='custom-slider'
+                            ),
+                        ], style={'margin-bottom': '10px'}),
+                        html.Div([
+                            html.Label("Iterations:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
+                            dcc.Slider(
+                                id='team-iterations-slider',
+                                min=100,
+                                max=1000,
+                                step=100,
+                                value=700,
+                                marks=None,
+                                tooltip={"placement": "bottom", "always_visible": True},
+                                className='custom-slider'
+                            ),
+                        ])
+                    ], style={
+                        'backgroundColor': '#f1f3f4',
+                        'padding': '10px',
+                        'borderRadius': '20px',
+                        'marginBottom': '10px'
+                    })
                 ], style={
                     'backgroundColor': '#f1f3f4',
                     'padding': '10px',
@@ -230,16 +245,25 @@ app.layout = html.Div([
                     type="default",
                     children=[dcc.Graph(id='team-tsne-plot')]
                 ),
-                html.Details([
-                    html.Summary("Team Feature Importance", style={
-                        'cursor': 'pointer',
-                        'font-family': 'Montserrat',
-                        'font-weight': '600',
-                        'color': '#4285F4',
-                        'margin-bottom': '10px'
-                    }),
-                    html.Div(id='team-feature-importance')
-                ], style={'margin-top': '20px'}),
+                html.Div([
+                    html.Details([
+                        html.Summary("Team Feature Importance", style={
+                            'cursor': 'pointer',
+                            'font-family': 'Montserrat',
+                            'font-weight': '700',
+                            'color': '#4285F4',
+                            'margin-bottom': '10px',
+                            'font-size': '18px'
+                        }),
+                        html.Div(id='team-feature-importance')
+                    ], style={
+                        'margin-top': '20px',
+                        'backgroundColor': '#f1f3f4',
+                        'padding': '10px',
+                        'borderRadius': '20px',
+                        'marginBottom': '10px'
+                    })
+                ], className='feature-importance-box'),
                 dcc.Loading(
                     id="loading-team-insights",
                     type="default",
@@ -251,32 +275,47 @@ app.layout = html.Div([
             html.Div([
                 html.H2("Player View", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
                 html.Div([
-                    html.Div([
-                        html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
-                        dcc.Slider(
-                            id='player-perplexity-slider',
-                            min=5,
-                            max=100,
-                            step=5,
-                            value=45,
-                            marks=None,
-                            tooltip={"placement": "bottom", "always_visible": True},
-                            className='custom-slider'
-                        ),
-                    ], style={'width': '48%', 'display': 'inline-block', 'marginRight': '2%'}),
-                    html.Div([
-                        html.Label("Iterations:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
-                        dcc.Slider(
-                            id='player-iterations-slider',
-                            min=100,
-                            max=1000,
-                            step=100,
-                            value=700,
-                            marks=None,
-                            tooltip={"placement": "bottom", "always_visible": True},
-                            className='custom-slider'
-                        ),
-                    ], style={'width': '48%', 'display': 'inline-block'}),
+                    html.Details([
+                        html.Summary("Adjust t-SNE map settings", style={
+                            'cursor': 'pointer',
+                            'font-family': 'Montserrat',
+                            'font-weight': '700',
+                            'color': '#4285F4',
+                            'margin-bottom': '10px',
+                            'font-size': '18px'
+                        }),
+                        html.Div([
+                            html.Label("Perplexity:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
+                            dcc.Slider(
+                                id='player-perplexity-slider',
+                                min=5,
+                                max=100,
+                                step=5,
+                                value=45,
+                                marks=None,
+                                tooltip={"placement": "bottom", "always_visible": True},
+                                className='custom-slider'
+                            ),
+                        ], style={'margin-bottom': '10px'}),
+                        html.Div([
+                            html.Label("Iterations:", style={'font-family': 'Inter', 'font-weight': '500', 'margin-right': '10px'}),
+                            dcc.Slider(
+                                id='player-iterations-slider',
+                                min=100,
+                                max=1000,
+                                step=100,
+                                value=700,
+                                marks=None,
+                                tooltip={"placement": "bottom", "always_visible": True},
+                                className='custom-slider'
+                            ),
+                        ])
+                    ], style={
+                        'backgroundColor': '#f1f3f4',
+                        'padding': '10px',
+                        'borderRadius': '20px',
+                        'marginBottom': '10px'
+                    })
                 ], style={
                     'backgroundColor': '#f1f3f4',
                     'padding': '10px',
@@ -300,16 +339,25 @@ app.layout = html.Div([
                     type="default",
                     children=[dcc.Graph(id='player-tsne-plot')]
                 ),
-                html.Details([
-                    html.Summary("Player Feature Importance", style={
-                        'cursor': 'pointer',
-                        'font-family': 'Montserrat',
-                        'font-weight': '600',
-                        'color': '#4285F4',
-                        'margin-bottom': '10px'
-                    }),
-                    html.Div(id='feature-importance')
-                ], style={'margin-top': '20px'}),
+                html.Div([
+                    html.Details([
+                        html.Summary("Player Feature Importance", style={
+                            'cursor': 'pointer',
+                            'font-family': 'Montserrat',
+                            'font-weight': '700',
+                            'color': '#4285F4',
+                            'margin-bottom': '10px',
+                            'font-size': '18px'
+                        }),
+                        html.Div(id='feature-importance')
+                    ], style={
+                        'margin-top': '20px',
+                        'backgroundColor': '#f1f3f4',
+                        'padding': '10px',
+                        'borderRadius': '20px',
+                        'marginBottom': '10px'
+                    })
+                ], className='feature-importance-box'),
                 dcc.Loading(
                     id="loading-player-insights",
                     type="default",
@@ -405,7 +453,7 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
     insights_data = team_df[['team_name', 'x', 'y', 'z'] + feature_columns].to_dict('records')
     insights = generate_insights(insights_data, selected_teams, "team", perplexity, n_iter)
     insights_div = html.Div([
-        html.H2("Team Insights"),
+        
         dcc.Markdown(insights, dangerously_allow_html=True)
     ])
     
@@ -427,22 +475,16 @@ def update_team_plot(perplexity, n_iter, n_clicks, selected_teams, search_team):
 )
 def update_player_plot(perplexity, n_iter, n_clicks, positions, click_data, selected_teams, search_player):
     if not selected_teams:
-        empty_fig = go.Figure()
-        empty_fig.update_layout(
-            title="Please select one or more teams to view player data",
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(
-                    text="No teams selected",
-                    xref="paper",
-                    yref="paper",
-                    showarrow=False,
-                    font=dict(size=28)
-                )
-            ]
+        return go.Figure(), [], html.Div(
+            "Please select one or more teams to view player insights.",
+            style={
+                'font-family': 'Montserrat',
+                'font-size': '18px',
+                'text-align': 'center',
+                'color': '#4285F4',
+                'margin-top': '20px'
+            }
         )
-        return empty_fig, [], "Please select one or more teams to view player insights."
 
     global feature_columns
     
@@ -544,7 +586,7 @@ def update_feature_importance(filtered_data):
     table_data = [{'Feature': feature, 'Importance': f"{importance:.3f}"} for feature, importance in correlations]
 
     return html.Div([
-        html.H3("Feature Importance"),
+        html.H3("Feature Importance", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
         html.P("The table below shows the correlation between each feature and the t-SNE coordinates. Higher values indicate stronger influence on player positioning."),
         dash_table.DataTable(
             data=table_data,
@@ -600,7 +642,7 @@ def update_team_feature_importance(filtered_data):
     table_data = [{'Feature': feature, 'Importance': f"{importance:.3f}"} for feature, importance in correlations]
 
     return html.Div([
-        html.H3("Team Feature Importance"),
+        html.H3("Team Feature Importance", style={'font-family': 'Montserrat', 'color': '#5B9BFF', 'font-weight': '700'}),
         html.P("The table below shows the correlation between each team feature and the t-SNE coordinates. Higher values indicate stronger influence on team positioning."),
         dash_table.DataTable(
             data=table_data,
@@ -651,7 +693,7 @@ def generate_insights(data, selected_items=None, item_type="team", perplexity=30
     4. If specific {item_type}s are selected, focus on explaining their position relative to others.
 
     Format your response in HTML, using appropriate tags for headings, paragraphs, lists, and emphasis.
-    Use <h2> for main sections, <h3> for subsections, <p> for paragraphs, <ul> and <li> for unordered lists, and <strong> for emphasis.
+    Use <h2 style="font-family: 'Montserrat'; color: '#5B9BFF';"> for main sections, <h3 style="font-family: 'Montserrat'; color: '#4285F4';"> for subsections, <p> for paragraphs, <ul> and <li> for unordered lists, and <strong> for emphasis.
     """
     
     if selected_items:
