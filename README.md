@@ -263,6 +263,80 @@ This command will start a local Dash server and display an interactive t-SNE vis
 
 ![t-SNE Visualization](t-sne.png)
 
+## Deploying to Google App Engine
+
+After testing the t-SNE visualization locally, you can deploy it to Google App Engine for public access. Follow these steps:
+
+1. Ensure you have the Google Cloud SDK installed and you're authenticated with your Google Cloud account.
+
+2. Make sure you're in the project directory containing `app.yaml`, `tsne.py`, and other necessary files.
+
+3. If you haven't already, create an `app.yaml` file with the following content:
+   ```yaml
+   runtime: python39
+   service: tsne
+   entrypoint: gunicorn -b :$PORT tsne:server
+
+   instance_class: F2
+
+   automatic_scaling:
+     target_cpu_utilization: 0.65
+     min_instances: 0
+     max_instances: 3   ```
+
+4. Create a `.gcloudignore` file to specify which files should not be uploaded to App Engine. Here's a sample:
+   ```
+   # Python pycache:
+   __pycache__/
+   # Ignored by the build system
+   /setup.cfg
+   # Ignore git and IDE files
+   .git
+   .gitignore
+   .idea
+   .vscode
+   # Ignore data, docs, notebooks, and tests directories
+   /data/
+   /docs/
+   /notebooks/
+   /tests/
+   # Ignore markdown and text files
+   *.md
+   *.txt
+   !requirements.txt
+   # Ignore YAML files (except app.yaml)
+   *.yaml
+   *.yml
+   !app.yaml
+   # Ignore JSON files
+   *.json
+   # Ignore Dockerfile
+   Dockerfile
+   # Ignore backup files
+   *.bak
+   # Ignore Python compiled files
+   *.pyc
+   *.pyo
+   *.pyd   ```
+
+5. Deploy the application to App Engine using the following command:
+   ```
+   gcloud app deploy   ```
+
+6. When prompted, select the region where you want to deploy your app.
+
+7. The deployment process will begin. This may take a few minutes.
+
+8. Once the deployment is complete, you can view your application by running:
+   ```
+   gcloud app browse   ```
+
+   This will open your default web browser with the URL of your deployed application.
+
+Your t-SNE visualization is now deployed on Google App Engine and accessible via the provided URL. You can share this URL with others who want to explore the visualization.
+
+Note: Make sure your Google Cloud project has billing enabled and the necessary APIs (like App Engine) activated. Also, be aware that running applications on App Engine may incur charges to your Google Cloud account.
+
 ## Project Structure
 
 - `data/`: Contains pre-downloaded Premier League data
