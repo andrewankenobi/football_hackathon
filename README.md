@@ -18,7 +18,8 @@ Before you can clone this repository and run the code, you'll need to install Py
 
 1. **Download Python:** Go to [https://www.python.org/downloads/mac-osx/](https://www.python.org/downloads/mac-osx/) and download the latest Python 3 release.
 2. **Install Python:** Double-click the downloaded file and follow the on-screen instructions.
-3. **Verify installation:** Open a terminal and type `python3 --version`. You should see the installed Python version.
+3. **Create Python Alias:** There's no python alias by default on Macs, create one running `alias python='python3` 
+4. **Verify installation:** Open a terminal and type `python3 --version`. You should see the installed Python version.
 
 **Linux:**
 
@@ -84,7 +85,7 @@ Before you can clone this repository and run the code, you'll need to install Py
 2. **Grant the Vertex AI User role to the service account associated with the connection:**
    - Run the following command:     ```
      gcloud projects add-iam-policy-binding <your-project-id> --member="serviceAccount:<service-account-email>" --role="roles/aiplatform.user"     ```
-   - Replace `<your-project-id>` with your project ID and `<service-account-email>` with the email of the service account created for the connection. You can find the service account email in the BigQuery console under the "Connections" tab.
+   - Replace `<your-project-id>` with your project ID and `<service-account-email>` with the email of the service account created for the connection. You can find the service account email in the BigQuery console under the "External connections" tab.
 
 ## Running Queries and Experiments
 
