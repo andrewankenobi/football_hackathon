@@ -1,4 +1,6 @@
-  -- SECTION 0: Setup
+  -- SECTION 0: Setup and Parameters
+  DECLARE connection_name STRING DEFAULT '<set your connection ID here (right click on the connection in the BigQuery console and select copy connection name), looking like projects/your-project-id/locations/your-region/connections/biglake>';
+
   -- This section creates all necessary views, tables, and models.
 
   -- SECTION 1: Schema Evaluation
@@ -13,7 +15,7 @@
 
   -- SECTION 2: Vertex AI Connection and Gemini Model
   CREATE OR REPLACE MODEL `statsbomb.gemini`
-  REMOTE WITH CONNECTION `projects/awesome-advice-420021/locations/us/connections/biglake`
+  REMOTE WITH CONNECTION `@connection_name`
   OPTIONS (endpoint = 'gemini-pro');
 
   -- SECTION 3: Data Exploration Views
@@ -335,3 +337,4 @@
 
   -- 9.8: Similar Players to a Defender (e.g., Angelo Obinze Ogbonna)
   -- SELECT base.* FROM VECTOR_SEARCH(TABLE `statsbomb.player_embeddings`, 'ml_generate_embedding_result', (SELECT ml_generate_embedding_result FROM `statsbomb.player_embeddings` WHERE player_name = 'Angelo Obinze Ogbonna'), top_k => 10, distance_type => 'COSINE') WHERE base.player_name != 'Angelo Obinze Ogbonna';
+
