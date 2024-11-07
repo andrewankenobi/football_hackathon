@@ -41,7 +41,7 @@ This repository contains the necessary code and instructions to run a data analy
 
 7. **Enable required Google Cloud APIs:**
    - Run the following commands to enable the necessary APIs for this project:   ```
-   gcloud services enable bigquery.googleapis.com bigqueryconnection.googleapis.com aiplatform.googleapis.com storage.googleapis.com cloudresourcemanager.googleapis.com appengine.googleapis.com ```
+   gcloud services enable bigquery.googleapis.com bigqueryconnection.googleapis.com aiplatform.googleapis.com storage.googleapis.com cloudresourcemanager.googleapis.com appengine.googleapis.com artifactregistry.googleapis.com ```
 
    Note: It may take a few minutes for each API to be fully enabled. You can check the status of the APIs in the Google Cloud Console under "APIs & Services" > "Dashboard".
 
