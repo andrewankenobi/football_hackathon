@@ -38,6 +38,7 @@ Before you can clone this repository and run the code, you'll need to install Py
 
 1. **Clone this repository:**   ```
    git clone https://github.com/andrewankenobi/football_hackathon.git
+
    cd football_hackathon   ```
 
 2. **Install the required Python dependencies:**   ```
