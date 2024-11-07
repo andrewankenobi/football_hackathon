@@ -55,13 +55,37 @@ Before you can clone this repository and run the code, you'll need to install Py
 5. **Authenticate with your Google Cloud account:**
    - Open a terminal or command prompt.
    - Run the following command:     ```
-     gcloud auth login     ```
+     gcloud auth application-default login     ```
    - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
 
 6. **Set your GCP project:**
    - Once you're authenticated, run the following command to set your GCP project:     ```
      gcloud config set project <your-project-id>     ```
    - Replace `<your-project-id>` with the ID of your Google Cloud project.
+
+7. **Enable required Google Cloud APIs:**
+   - Run the following commands to enable the necessary APIs for this project:
+   ```bash
+   # Enable BigQuery API
+   gcloud services enable bigquery.googleapis.com
+
+   # Enable BigQuery Connection API
+   gcloud services enable bigqueryconnection.googleapis.com
+
+   # Enable Vertex AI API
+   gcloud services enable aiplatform.googleapis.com
+
+   # Enable Cloud Storage API (needed for data transfer)
+   gcloud services enable storage.googleapis.com
+
+   # Enable Cloud Resource Manager API (needed for IAM permissions)
+   gcloud services enable cloudresourcemanager.googleapis.com
+
+   # Enable App Engine API (needed for deployment)
+   gcloud services enable appengine.googleapis.com
+   ```
+
+   Note: It may take a few minutes for each API to be fully enabled. You can check the status of the APIs in the Google Cloud Console under "APIs & Services" > "Dashboard".
 
 ## Data Download and Loading
 
