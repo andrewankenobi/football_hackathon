@@ -1,41 +1,23 @@
 # Google Cloud libraries
 google-cloud-bigquery
-google-cloud-storage
 google-cloud-aiplatform
 vertexai
+db-dtypes
 
 # Data processing and analysis
 pandas
 numpy
-datetime
 
 # API requests
 requests
 
-# Data visualization
-matplotlib
-seaborn
+# Data visualization and web app
+dash
+dash-bootstrap-components
 plotly
-
-# Jupyter notebooks (optional, for interactive development)
-jupyter
 
 # Machine learning
 scikit-learn
-tensorflow
 
-# Geospatial data handling (for GPX files)
-gpxpy
-
-# Web framework (if needed for deployment)
-flask
-
-# Environment management
-python-dotenv
-
-# Interactive widgets
-ipywidgets
-dash
-dash-bootstrap-components
+# Web server for deployment
 gunicorn
-db-dtypes
