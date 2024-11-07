@@ -44,18 +44,21 @@ Before you can clone this repository and run the code, you'll need to install Py
 2. **Install the required Python dependencies:**   ```
    pip install -r requirements.txt   ```
 
+   ```/usr/bin/pip3 install -r requirements.txt```
+   
 
-3. **Install the Google Cloud SDK:**
+
+4. **Install the Google Cloud SDK:**
    - Download the Google Cloud SDK from [https://cloud.google.com/sdk/docs/install](https://cloud.google.com/sdk/docs/install).
    - Follow the instructions for your operating system to install the SDK.
 
-4. **Authenticate with your Google Cloud account:**
+5. **Authenticate with your Google Cloud account:**
    - Open a terminal or command prompt.
    - Run the following command:     ```
      gcloud auth login     ```
    - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
 
-5. **Set your GCP project:**
+6. **Set your GCP project:**
    - Once you're authenticated, run the following command to set your GCP project:     ```
      gcloud config set project <your-project-id>     ```
    - Replace `<your-project-id>` with the ID of your Google Cloud project.
