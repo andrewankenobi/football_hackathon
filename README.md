@@ -98,7 +98,7 @@ Before you can clone this repository and run the code, you'll need to install Py
 2. **Load the data into BigQuery:**
    - Create a BigQuery dataset in your project:     ```
      bq mk --dataset <your-project-id>:<dataset-name>     ```
-   - Replace `<your-project-id>` with your project ID and `<dataset-name>` with a name for your dataset (e.g., `statsbomb_data`).
+   - Replace `<your-project-id>` with your project ID and `<dataset-name>` with a name for your dataset (e.g., `statsbomb`).
    - Run the following command to load the downloaded data into BigQuery:     ```
      python load_to_bigquery.py <your-project-id> <dataset-name>     ```
 
