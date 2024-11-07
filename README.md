@@ -296,6 +296,14 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
    gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
        --role="roles/bigquery.admin"
+
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/bigquery.jobUser"
+
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/bigquery.dataViewer"
    ```
 
 3. Make sure you're in the project directory containing `app.yaml`, `tsne.py`, and other necessary files.
@@ -350,7 +358,7 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
 
 6. Deploy the application to App Engine using the following command:
    ```
-   gcloud app deploy
+   gcloud app deploy --service-account="${PROJECT_ID}@appspot.gserviceaccount.com"
    ```
 
 7. When prompted, select the region where you want to deploy your app.
