@@ -40,10 +40,20 @@ This repository contains the necessary code and instructions to run a data analy
    - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
 
 7. **Enable required Google Cloud APIs:**
-   - Run the following commands to enable the necessary APIs for this project:   ```
-   gcloud services enable bigquery.googleapis.com bigqueryconnection.googleapis.com aiplatform.googleapis.com storage.googleapis.com cloudresourcemanager.googleapis.com appengine.googleapis.com artifactregistry.googleapis.com ```
+   - Run the following commands to enable all necessary APIs for this project:
+   ```bash
+   gcloud services enable \
+       bigquery.googleapis.com \
+       bigqueryconnection.googleapis.com \
+       aiplatform.googleapis.com \
+       storage.googleapis.com \
+       cloudresourcemanager.googleapis.com \
+       appengine.googleapis.com \
+       artifactregistry.googleapis.com \
+       containerregistry.googleapis.com
+   ```
 
-   Note: It may take a few minutes for each API to be fully enabled. You can check the status of the APIs in the Google Cloud Console under "APIs & Services" > "Dashboard".
+
 
 ## Data Download and Loading
 
@@ -257,9 +267,40 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
 
 1. Ensure you have the Google Cloud SDK installed and you're authenticated with your Google Cloud account.
 
-2. Make sure you're in the project directory containing `app.yaml`, `tsne.py`, and other necessary files.
+2. **Configure Service Account Permissions:**
+   
+   a. Configure Docker authentication for Container Registry:
+   ```bash
+   gcloud auth configure-docker us.gcr.io
+   ```
 
-3. If you haven't already, create an `app.yaml` file with the following content:
+   b. Enable Cloud Build API:
+   ```bash
+   gcloud services enable cloudbuild.googleapis.com
+   ```
+
+   c. Grant necessary roles to the App Engine default service account:
+   ```bash
+   # Store your project ID in a variable
+   export PROJECT_ID=$(gcloud config get-value project)
+   
+   # Grant roles to the App Engine default service account
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/storage.admin"
+
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/cloudbuild.builds.builder"
+
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/bigquery.admin"
+   ```
+
+3. Make sure you're in the project directory containing `app.yaml`, `tsne.py`, and other necessary files.
+
+4. If you haven't already, create an `app.yaml` file with the following content:
    ```yaml
    runtime: python39
    service: tsne
@@ -272,7 +313,7 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
      min_instances: 0
      max_instances: 3   ```
 
-4. Create a `.gcloudignore` file to specify which files should not be uploaded to App Engine. Here's a sample:
+5. Create a `.gcloudignore` file to specify which files should not be uploaded to App Engine. Here's a sample:
    ```
    # Python pycache:
    __pycache__/
@@ -307,16 +348,16 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
    *.pyo
    *.pyd   ```
 
-5. Deploy the application to App Engine using the following command:
+6. Deploy the application to App Engine using the following command:
    ```
    gcloud app deploy
    ```
 
-6. When prompted, select the region where you want to deploy your app.
+7. When prompted, select the region where you want to deploy your app.
 
-7. The deployment process will begin. This may take a few minutes.
+8. The deployment process will begin. This may take a few minutes.
 
-8. Once the deployment is complete, you can view your application by running:
+9. Once the deployment is complete, you can view your application by running:
    ```
    gcloud app browse   
    ```
