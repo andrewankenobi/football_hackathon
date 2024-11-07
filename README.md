@@ -252,6 +252,7 @@ After completing the setup and data loading steps, you can run the t-SNE visuali
 
 2. Run the t-SNE visualization script:
    ```
+   export GOOGLE_CLOUD_PROJECT="your-project-id"
    python tsne.py
    ```
 
@@ -308,18 +309,27 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
 
 3. Make sure you're in the project directory containing `app.yaml`, `tsne.py`, and other necessary files.
 
-4. If you haven't already, create an `app.yaml` file with the following content:
+4. **Update app.yaml with your project ID:**
    ```yaml
    runtime: python39
-   service: tsne
    entrypoint: gunicorn -b :$PORT tsne:server
 
-   instance_class: F2
+   env_variables:
+     GOOGLE_CLOUD_PROJECT: "your-project-id"  # <-- IMPORTANT: Replace with your actual project ID
 
-   automatic_scaling:
-     target_cpu_utilization: 0.65
-     min_instances: 0
-     max_instances: 3   ```
+   instance_class: B8  # High-performance instance
+
+   # Using basic scaling for B8 instance class
+   basic_scaling:
+     max_instances: 10
+     idle_timeout: 10m
+
+   handlers:
+   - url: /.*
+     script: auto
+     secure: always
+   ```
+   ⚠️ **IMPORTANT:** Make sure to replace `"your-project-id"` with your actual Google Cloud project ID before deploying.
 
 5. Create a `.gcloudignore` file to specify which files should not be uploaded to App Engine. Here's a sample:
    ```

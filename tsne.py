@@ -732,7 +732,13 @@ def update_team_feature_importance(filtered_data):
     ])
 
 # Initialize Vertex AI
-vertexai.init(project="awesome-advice-420021", location="us-central1")
+project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
+location = 'us-central1'
+
+vertexai.init(
+    project=project_id,
+    location=location,
+)
 model = GenerativeModel("gemini-1.5-flash")
 
 # Generation config for Gemini

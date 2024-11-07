@@ -1,8 +1,10 @@
 # Google Cloud libraries
 google-cloud-bigquery
+google-cloud-bigquery-storage
 google-cloud-aiplatform
 vertexai
 db-dtypes
+flask-cors
 
 # Data processing and analysis
 pandas
