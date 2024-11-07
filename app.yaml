@@ -1,5 +1,5 @@
 runtime: python39
-service: tsne
+service: default
 entrypoint: gunicorn -b :$PORT tsne:server
 
 instance_class: F2
