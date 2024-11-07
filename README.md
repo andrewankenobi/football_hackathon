@@ -10,109 +10,72 @@ This repository contains the necessary code and instructions to run a data analy
 - Google Cloud SDK
 - A Google Cloud Platform account with billing enabled
 
-## Installing Python
-
-Before you can clone this repository and run the code, you'll need to install Python on your computer. Here's how to do it for different operating systems:
-
-**Mac:**
-
-1. **Download Python:** Go to [https://www.python.org/downloads/mac-osx/](https://www.python.org/downloads/mac-osx/) and download the latest Python 3 release.
-2. **Install Python:** Double-click the downloaded file and follow the on-screen instructions.
-3. **Create Python Alias:** There's no python alias by default on Macs, create one running `alias python='python3` 
-4. **Verify installation:** Open a terminal and type `python3 --version`. You should see the installed Python version.
-
-**Linux:**
-
-1. **Use your package manager:** Most Linux distributions have Python pre-installed. You can update it using your package manager. For example, on Ubuntu:   ```bash
-   sudo apt update
-   sudo apt install python3   ```
-2. **Verify installation:** Open a terminal and type `python3 --version`. You should see the installed Python version.
-
-**Windows:**
-
-1. **Download Python:** Go to [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/) and download the latest Python 3 release.
-2. **Install Python:** During installation, make sure to check the box that says "Add Python to PATH". This will make it easier to run Python from the command prompt.
-3. **Verify installation:** Open a command prompt and type `python --version`. You should see the installed Python version.
-
 ## Setup
 
-1. **Clone this repository:**   ```
+1. **Clone this repository:**   ```bash
    git clone https://github.com/andrewankenobi/football_hackathon.git
-
    cd football_hackathon   ```
 
-2. **Install the required Python dependencies:**   ```
-   pip install -r requirements.txt   ```
-
-   ```/usr/bin/pip3 install -r requirements.txt```
-   
-
-
-4. **Install the Google Cloud SDK:**
+2. **Install the Google Cloud SDK:**
    - Download the Google Cloud SDK from [https://cloud.google.com/sdk/docs/install](https://cloud.google.com/sdk/docs/install).
    - Follow the instructions for your operating system to install the SDK.
 
-5. **Authenticate with your Google Cloud account:**
-   - Open a terminal or command prompt.
-   - Run the following command:     ```
-     gcloud auth application-default login     ```
-   - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
+3. **Install the required Python dependencies:**   ```bash
+   pip install -r requirements.txt   ```
 
-6. **Set your GCP project:**
-   - Once you're authenticated, run the following command to set your GCP project:     ```
-     gcloud config set project <your-project-id>     ```
+4. **Create a GCP project:**
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   - Click on the "Select a project" dropdown in the top left corner and click "Create project".
+   - Enter a project name and click "Create".
+
+5. **Set your GCP project:**
+   - Run the following command to set your GCP project:   ```bash
+   gcloud config set project <your-project-id>   ```
    - Replace `<your-project-id>` with the ID of your Google Cloud project.
 
+6. **Authenticate with your Google Cloud account:**
+   - Open a terminal or command prompt.
+   - Run the following command:   ```bash
+   gcloud auth application-default login   ```
+   - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
+
 7. **Enable required Google Cloud APIs:**
-   - Run the following commands to enable the necessary APIs for this project:
-   ```bash
-   # Enable BigQuery API
+   - Run the following commands to enable the necessary APIs for this project:   ```bash
    gcloud services enable bigquery.googleapis.com
-
-   # Enable BigQuery Connection API
    gcloud services enable bigqueryconnection.googleapis.com
-
-   # Enable Vertex AI API
    gcloud services enable aiplatform.googleapis.com
-
-   # Enable Cloud Storage API (needed for data transfer)
    gcloud services enable storage.googleapis.com
-
-   # Enable Cloud Resource Manager API (needed for IAM permissions)
    gcloud services enable cloudresourcemanager.googleapis.com
-
-   # Enable App Engine API (needed for deployment)
-   gcloud services enable appengine.googleapis.com
-   ```
+   gcloud services enable appengine.googleapis.com   ```
 
    Note: It may take a few minutes for each API to be fully enabled. You can check the status of the APIs in the Google Cloud Console under "APIs & Services" > "Dashboard".
 
 ## Data Download and Loading
 
 1. **Download the StatsBomb data:**
-   - Run the data download script:     ```
-     python download_statsbomb_data.py     ```
+   - Run the data download script:   ```bash
+   python download_statsbomb_data.py   ```
    - This script will download JSON files from the StatsBomb open data repository. You can choose which competitions and seasons to download.
    - Alternatively, you can use the pre-downloaded Premier League data in the `data` folder.
 
 2. **Load the data into BigQuery:**
-   - Create a BigQuery dataset in your project:     ```
-     bq mk --dataset <your-project-id>:<dataset-name>     ```
-   - Replace `<your-project-id>` with your project ID and `<dataset-name>` with a name for your dataset (e.g., `statsbomb`).
-   - Run the following command to load the downloaded data into BigQuery:     ```
-     python load_to_bigquery.py <your-project-id> <dataset-name>     ```
+   - Create a BigQuery dataset in your project:   ```bash
+   bq mk --dataset <your-project-id>:statsbomb --location=us-central1   ```
+   - Replace `<your-project-id>` with your project ID.
+   - Run the following command to load the downloaded data into BigQuery:   ```bash
+   python load_to_bigquery.py <your-project-id> statsbomb   ```
 
 ## Vertex AI Connection Setup
 
 1. **Create a connection to Vertex AI in BigQuery:**
    - Make sure it's in the same location as your dataset.
-   - Run the following command:     ```
-     bq mk --connection --display_name="Vertex AI Connection" --connection_type=CLOUD_RESOURCE --project_id=<your-project-id> --location=<your-location> vertex-ai-connection     ```
+   - Run the following command:   ```bash
+   bq mk --connection --display_name="Vertex AI Connection" --connection_type=CLOUD_RESOURCE --project_id=<your-project-id> --location=<your-location> vertex-ai-connection   ```
    - Replace `<your-project-id>` with your project ID and `<your-location>` with the location of your BigQuery dataset (e.g., `us-central1`).
 
 2. **Grant the Vertex AI User role to the service account associated with the connection:**
-   - Run the following command:     ```
-     gcloud projects add-iam-policy-binding <your-project-id> --member="serviceAccount:<service-account-email>" --role="roles/aiplatform.user"     ```
+   - Run the following command:   ```bash
+   gcloud projects add-iam-policy-binding <your-project-id> --member="serviceAccount:<service-account-email>" --role="roles/aiplatform.user"   ```
    - Replace `<your-project-id>` with your project ID and `<service-account-email>` with the email of the service account created for the connection. You can find the service account email in the BigQuery console under the "External connections" tab.
 
 ## Running Queries and Experiments
@@ -122,62 +85,62 @@ The `sql_queries.sql` file contains a comprehensive set of SQL queries, views, a
 1. **Schema Evaluation:**
 
    - The `vw_schema_info` view provides a comprehensive overview of the schema of all tables in the StatsBomb dataset. You can use this view to understand the structure of the data and identify the columns available for analysis.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_schema_info` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_schema_info` LIMIT 10;   ```
 
 2. **Data Exploration Views:**
 
    - **`vw_goals_by_body_part`:** This view analyzes goals scored by different body parts for each player and team. It helps you understand how players score goals and identify any trends in goal-scoring techniques.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_goals_by_body_part` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_goals_by_body_part` LIMIT 10;   ```
 
    - **`vw_top_scorers`:** This view ranks players by the number of goals scored. It's a simple but effective way to identify the most prolific goal-scorers in the dataset.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_top_scorers` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_top_scorers` LIMIT 10;   ```
 
    - **`vw_team_possession`:** This view calculates average possession percentages for each team. It provides insights into how teams control the ball and their overall style of play.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_team_possession` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_team_possession` LIMIT 10;   ```
 
 3. **Player Analysis:**
 
    - **`vw_player_stats`:** This view provides comprehensive statistics for each player, including the number of passes, shots, ball recoveries, duels, interceptions, and more. It's a valuable resource for understanding player performance and identifying key strengths and weaknesses.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_player_stats` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_player_stats` LIMIT 10;   ```
 
    - **`vw_player_shots`:** This view analyzes player shots in detail, including shot type, body part, technique, location, and whether the shot resulted in a goal. It's useful for analyzing shot quality and identifying patterns in goal-scoring.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_player_shots` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_player_shots` LIMIT 10;   ```
 
 4. **Match Analysis:**
 
    - **`vw_match_stats`:** This view generates comprehensive match statistics, including possession percentages, shots, goals, passes, fouls, duels, and expected goals (xG). It provides a rich dataset for analyzing match outcomes and identifying key factors that influence the result.
-   - Run the following query in BigQuery:     ```sql
-     SELECT * FROM `statsbomb.vw_match_stats` LIMIT 10;     ```
+   - Run the following query in BigQuery:   ```sql
+   SELECT * FROM `statsbomb.vw_match_stats` LIMIT 10;   ```
 
 5. **Advanced Analytics and Machine Learning Models:**
 
    - **`player_clusters`:** This model uses K-means clustering to group players based on their performance statistics. It helps you identify groups of players with similar playing styles and characteristics.
-   - Run the following query in BigQuery to get predictions from the model:     ```sql
-     SELECT * FROM ML.PREDICT(MODEL `statsbomb.player_clusters`, (SELECT * FROM `statsbomb.vw_player_stats`)) LIMIT 10;     ```
+   - Run the following query in BigQuery to get predictions from the model:   ```sql
+   SELECT * FROM ML.PREDICT(MODEL `statsbomb.player_clusters`, (SELECT * FROM `statsbomb.vw_player_stats`)) LIMIT 10;   ```
 
    - **`xg_prediction`:** This model predicts the probability of a shot resulting in a goal based on various factors such as shot type, body part, technique, and location. It's a powerful tool for evaluating shot quality and understanding the likelihood of a shot being converted into a goal.
-   - Run the following query in BigQuery to get predictions from the model:     ```sql
-     SELECT * FROM ML.EXPLAIN_PREDICT(MODEL `statsbomb.xg_prediction`, (SELECT shot.type.name AS shot_type, shot.body_part.name AS body_part, shot.technique.name AS technique, under_pressure, play_pattern.name, location FROM `statsbomb.events` WHERE type.name = 'Shot' LIMIT 10))     ```
+   - Run the following query in BigQuery to get predictions from the model:   ```sql
+   SELECT * FROM ML.EXPLAIN_PREDICT(MODEL `statsbomb.xg_prediction`, (SELECT shot.type.name AS shot_type, shot.body_part.name AS body_part, shot.technique.name AS technique, under_pressure, play_pattern.name, location FROM `statsbomb.events` WHERE type.name = 'Shot' LIMIT 10));   ```
 
    - **`goal_prediction_model`:** This model predicts whether a shot will result in a goal based on features from the `vw_player_shots` view. It's useful for identifying shots that are more likely to be successful and for understanding the factors that contribute to goal-scoring.
-   - Run the following query in BigQuery to get predictions from the model:     ```sql
-     SELECT * FROM ML.PREDICT(MODEL `statsbomb.goal_prediction_model`, (SELECT * FROM `statsbomb.vw_player_shots` LIMIT 10))     ```
+   - Run the following query in BigQuery to get predictions from the model:   ```sql
+   SELECT * FROM ML.PREDICT(MODEL `statsbomb.goal_prediction_model`, (SELECT * FROM `statsbomb.vw_player_shots` LIMIT 10));   ```
 
    - **`match_outcome_prediction`:** This model predicts the outcome of a match (home win, away win, or draw) based on in-game statistics from the `vw_match_stats` view. It's a valuable tool for predicting match results and for understanding the factors that influence match outcomes.
-   - Run the following query in BigQuery to get predictions from the model:     ```sql
-     SELECT * FROM ML.PREDICT(MODEL `statsbomb.match_outcome_prediction`, (SELECT * FROM `statsbomb.vw_match_stats` LIMIT 10))     ```
+   - Run the following query in BigQuery to get predictions from the model:   ```sql
+   SELECT * FROM ML.PREDICT(MODEL `statsbomb.match_outcome_prediction`, (SELECT * FROM `statsbomb.vw_match_stats` LIMIT 10));   ```
 
 6. **Player Embeddings and Similarity Search:**
 
    - The `player_embeddings` table contains embeddings for each player, generated using a PCA model. These embeddings can be used to find players with similar characteristics.
-   - Run the following query in BigQuery to find players similar to Petr Čech:     ```sql
-     SELECT base.* FROM VECTOR_SEARCH(TABLE `statsbomb.player_embeddings`, 'ml_generate_embedding_result', (SELECT ml_generate_embedding_result FROM `statsbomb.player_embeddings` WHERE player_name = 'Petr Čech'), top_k => 10, distance_type => 'COSINE') WHERE base.player_name != 'Petr Čech';     ```
+   - Run the following query in BigQuery to find players similar to Petr Čech:   ```sql
+   SELECT base.* FROM VECTOR_SEARCH(TABLE `statsbomb.player_embeddings`, 'ml_generate_embedding_result', (SELECT ml_generate_embedding_result FROM `statsbomb.player_embeddings` WHERE player_name = 'Petr Čech'), top_k => 10, distance_type => 'COSINE') WHERE base.player_name != 'Petr Čech';   ```
 
 ## Model Registration with Vertex AI
 
