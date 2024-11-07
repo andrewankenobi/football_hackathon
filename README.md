@@ -280,12 +280,17 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
    gcloud services enable cloudbuild.googleapis.com
    ```
 
-   c. Grant necessary roles to the App Engine default service account:
+   c. 2. **Configure Service Account Permissions:**
+
+   First, store your project ID in a variable and verify it:
    ```bash
-   # Store your project ID in a variable
    export PROJECT_ID=$(gcloud config get-value project)
-   
-   # Grant roles to the App Engine default service account
+   echo "Configuring permissions for project: $PROJECT_ID"
+   ```
+
+   Grant all necessary roles to the App Engine default service account:
+   ```bash
+   # Core GCP roles
    gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
        --role="roles/storage.admin"
@@ -294,6 +299,7 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
        --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
        --role="roles/cloudbuild.builds.builder"
 
+   # BigQuery roles
    gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
        --role="roles/bigquery.admin"
@@ -305,7 +311,27 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
    gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
        --role="roles/bigquery.dataViewer"
+
+   # App Engine roles
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/appengine.appAdmin"
+
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/appengine.serviceAdmin"
+
+   # Vertex AI roles (if using ML features)
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/aiplatform.user"
+
+   # Service Account User role (needed for deployment)
+   gcloud projects add-iam-policy-binding $PROJECT_ID \
+       --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+       --role="roles/iam.serviceAccountUser"
    ```
+
 
 3. Make sure you're in the project directory containing `app.yaml`, `tsne.py`, and other necessary files.
 
