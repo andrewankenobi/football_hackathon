@@ -12,7 +12,7 @@ This repository contains the necessary code and instructions to run a data analy
 
 ## Setup
 
-1. **Clone this repository:**   ```bash
+1. **Clone this repository:**   ```
    git clone https://github.com/andrewankenobi/football_hackathon.git
    cd football_hackathon   ```
 
@@ -20,7 +20,7 @@ This repository contains the necessary code and instructions to run a data analy
    - Download the Google Cloud SDK from [https://cloud.google.com/sdk/docs/install](https://cloud.google.com/sdk/docs/install).
    - Follow the instructions for your operating system to install the SDK.
 
-3. **Install the required Python dependencies:**   ```bash
+3. **Install the required Python dependencies:**   ```
    pip install -r requirements.txt   ```
 
 4. **Create a GCP project:**
@@ -29,23 +29,28 @@ This repository contains the necessary code and instructions to run a data analy
    - Enter a project name and click "Create".
 
 5. **Set your GCP project:**
-   - Run the following command to set your GCP project:   ```bash
+   - Run the following command to set your GCP project:   ```
    gcloud config set project <your-project-id>   ```
    - Replace `<your-project-id>` with the ID of your Google Cloud project.
 
 6. **Authenticate with your Google Cloud account:**
    - Open a terminal or command prompt.
-   - Run the following command:   ```bash
+   - Run the following command:   ```
    gcloud auth application-default login   ```
    - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
 
 7. **Enable required Google Cloud APIs:**
-   - Run the following commands to enable the necessary APIs for this project:   ```bash
+   - Run the following commands to enable the necessary APIs for this project:   ```
    gcloud services enable bigquery.googleapis.com
+
    gcloud services enable bigqueryconnection.googleapis.com
+
    gcloud services enable aiplatform.googleapis.com
+
    gcloud services enable storage.googleapis.com
+
    gcloud services enable cloudresourcemanager.googleapis.com
+
    gcloud services enable appengine.googleapis.com   ```
 
    Note: It may take a few minutes for each API to be fully enabled. You can check the status of the APIs in the Google Cloud Console under "APIs & Services" > "Dashboard".
@@ -53,28 +58,28 @@ This repository contains the necessary code and instructions to run a data analy
 ## Data Download and Loading
 
 1. **Download the StatsBomb data:**
-   - Run the data download script:   ```bash
+   - Run the data download script:   ```
    python download_statsbomb_data.py   ```
    - This script will download JSON files from the StatsBomb open data repository. You can choose which competitions and seasons to download.
    - Alternatively, you can use the pre-downloaded Premier League data in the `data` folder.
 
 2. **Load the data into BigQuery:**
-   - Create a BigQuery dataset in your project:   ```bash
+   - Create a BigQuery dataset in your project:   ```
    bq mk --dataset <your-project-id>:statsbomb --location=us-central1   ```
    - Replace `<your-project-id>` with your project ID.
-   - Run the following command to load the downloaded data into BigQuery:   ```bash
+   - Run the following command to load the downloaded data into BigQuery:   ```
    python load_to_bigquery.py <your-project-id> statsbomb   ```
 
 ## Vertex AI Connection Setup
 
 1. **Create a connection to Vertex AI in BigQuery:**
    - Make sure it's in the same location as your dataset.
-   - Run the following command:   ```bash
+   - Run the following command:   ```
    bq mk --connection --display_name="gemini-connection" --connection_type=CLOUD_RESOURCE --project_id=<your-project-id> --location=us-central1 gemini-connection   ```
    - Replace `<your-project-id>` with your project ID and `<your-location>` with the location of your BigQuery dataset (e.g., `us-central1`).
 
 2. **Grant the Vertex AI User role to the service account associated with the connection:**
-   - Run the following command:   ```bash
+   - Run the following command:   ```
    gcloud projects add-iam-policy-binding <your-project-id> --member="serviceAccount:<service-account-email>" --role="roles/aiplatform.user"   ```
    - Replace `<your-project-id>` with your project ID and `<service-account-email>` with the email of the service account created for the connection. You can find the service account email in the BigQuery console under the "External connections" tab.
 
