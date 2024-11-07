@@ -40,17 +40,8 @@ This repository contains the necessary code and instructions to run a data analy
    - This will open a browser window where you can select your Google Cloud account and grant access to the SDK.
 
 7. **Enable required Google Cloud APIs:**
-   - Run the following commands to enable the necessary APIs for this project:   ```gcloud services enable bigquery.googleapis.com
-
-   gcloud services enable bigqueryconnection.googleapis.com
-
-   gcloud services enable aiplatform.googleapis.com
-
-   gcloud services enable storage.googleapis.com
-
-   gcloud services enable cloudresourcemanager.googleapis.com
-
-   gcloud services enable appengine.googleapis.com   ```
+   - Run the following commands to enable the necessary APIs for this project:   ```
+   gcloud services enable bigquery.googleapis.com bigqueryconnection.googleapis.com aiplatform.googleapis.com storage.googleapis.com cloudresourcemanager.googleapis.com appengine.googleapis.com ```
 
    Note: It may take a few minutes for each API to be fully enabled. You can check the status of the APIs in the Google Cloud Console under "APIs & Services" > "Dashboard".
 
