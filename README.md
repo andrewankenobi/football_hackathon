@@ -54,11 +54,12 @@ This repository contains the necessary code and instructions to run a data analy
    - Alternatively, you can use the pre-downloaded Premier League data in the `data` folder.
 
 2. **Load the data into BigQuery:**
+   
    - Create a BigQuery dataset in your project:   ```
    bq mk --dataset <your-project-id>:statsbomb --location=us-central1   ```
-   - Replace `<your-project-id>` with your project ID.
    - Run the following command to load the downloaded data into BigQuery:   ```
    python load_to_bigquery.py <your-project-id> statsbomb   ```
+   - Replace `<your-project-id>` with your project ID.
 
 ## Vertex AI Connection Setup
 
