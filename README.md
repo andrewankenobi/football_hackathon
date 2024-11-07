@@ -270,18 +270,6 @@ After testing the t-SNE visualization locally, you can deploy it to Google App E
 
 2. **Configure Service Account Permissions:**
    
-   a. Configure Docker authentication for Container Registry:
-   ```bash
-   gcloud auth configure-docker us.gcr.io
-   ```
-
-   b. Enable Cloud Build API:
-   ```bash
-   gcloud services enable cloudbuild.googleapis.com
-   ```
-
-   c. 2. **Configure Service Account Permissions:**
-
    First, store your project ID in a variable and verify it:
    ```bash
    export PROJECT_ID=$(gcloud config get-value project)
