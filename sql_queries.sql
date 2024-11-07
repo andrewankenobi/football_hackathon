@@ -1,3 +1,4 @@
+
   -- SECTION 1: Schema Evaluation
   CREATE OR REPLACE VIEW `statsbomb.vw_schema_info` AS
   SELECT
@@ -10,7 +11,7 @@
 
   -- SECTION 2: Vertex AI Connection and Gemini Model
   CREATE OR REPLACE MODEL `statsbomb.gemini`
-  REMOTE WITH CONNECTION `<set your connection ID here (right click on the connection in the BigQuery console and select copy connection name), looking like projects/your-project-id/locations/your-region/connections/biglake>`
+  REMOTE WITH CONNECTION `us-central1.gemini-connection`
   OPTIONS (endpoint = 'gemini-pro');
 
   -- SECTION 3: Data Exploration Views

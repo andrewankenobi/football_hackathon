@@ -70,7 +70,7 @@ This repository contains the necessary code and instructions to run a data analy
 1. **Create a connection to Vertex AI in BigQuery:**
    - Make sure it's in the same location as your dataset.
    - Run the following command:   ```bash
-   bq mk --connection --display_name="Vertex AI Connection" --connection_type=CLOUD_RESOURCE --project_id=<your-project-id> --location=<your-location> vertex-ai-connection   ```
+   bq mk --connection --display_name="gemini-connection" --connection_type=CLOUD_RESOURCE --project_id=<your-project-id> --location=us-central1 gemini-connection   ```
    - Replace `<your-project-id>` with your project ID and `<your-location>` with the location of your BigQuery dataset (e.g., `us-central1`).
 
 2. **Grant the Vertex AI User role to the service account associated with the connection:**
