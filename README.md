@@ -13,8 +13,9 @@ This repository contains the necessary code and instructions to run a data analy
 ## Setup
 
 1. **Clone this repository:**   ```
-   git clone https://github.com/andrewankenobi/football_hackathon.git
-   cd football_hackathon   ```
+   git clone https://github.com/andrewankenobi/football_hackathon.git ```
+   
+   ```cd football_hackathon   ```
 
 2. **Install the Google Cloud SDK:**
    - Download the Google Cloud SDK from [https://cloud.google.com/sdk/docs/install](https://cloud.google.com/sdk/docs/install).
