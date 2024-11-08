@@ -67,7 +67,7 @@ This repository contains the necessary code and instructions to run a data analy
 2. **Load the data into BigQuery:**
    
    - Create a BigQuery dataset in your project:   ```
-   bq mk --location=us-central1 --dataset <your-project-id>:statsbomb --location=us-central1   ```
+   bq mk --location=us-central1 --dataset <your-project-id>:statsbomb   ```
    - Run the following command to load the downloaded data into BigQuery:   ```
    python load_to_bigquery.py <your-project-id> statsbomb   ```
    - Replace `<your-project-id>` with your project ID.
